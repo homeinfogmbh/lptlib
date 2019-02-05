@@ -5,7 +5,7 @@ FILE_LIST = ./.installed_files.txt
 default: | pull clean generate-bindings install
 
 generate-bindings:
-	@ pyxbgen -u xsds/lpt.xsd -m dom --module-prefix=lptlib
+	@ pyxbgen -u lpt.xsd -m dom --module-prefix=lptlib
 
 install:
 	@ ./setup.py install --record $(FILE_LIST)
