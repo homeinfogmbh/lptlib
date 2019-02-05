@@ -1,7 +1,6 @@
 """Local public transport API."""
 
-from lptlib.api import get_departures
-from lptlib.common import Stop, StopEvent
+from lptlib.api import get_departures, get_response
 
 
-__all__ = ['get_departures', 'Stop', 'StopEvent']
+__all__ = ['get_departures', 'get_response']
