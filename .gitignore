@@ -1,0 +1,11 @@
+build
+.installed_files.txt
+*.pyc
+*~
+*.egg-info
+*.swp
+setup.cfg
+dist
+__pycache__
+.buildconfig
+lptlib/dom.py
