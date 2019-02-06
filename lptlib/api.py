@@ -1,7 +1,7 @@
 """Generalized local public transportation API."""
 
-from trias import Client as TriasClient
 from hafas import Client as HafasClient
+from trias import Client as TriasClient
 from wsgilib import Error, ACCEPT, XML, JSON
 
 from lptlib.config import get_client
