@@ -10,7 +10,7 @@ __all__ = ['get_departures']
 def get_departures(client, address):
     """Returns departures from the respective HAFAS client."""
 
-    location_list = client.locations(repr(address))
+    location_list = client.locations(repr(address), type='S')  # Stations only.
     stop_locations = location_list.StopLocation
     stops = []
 
