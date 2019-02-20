@@ -81,9 +81,11 @@ def clients():
             logger.error('Invalid client type: "%s".', type_)
             continue
 
+        client.source = source
+
         for (start, end) in config.get('zip_codes'):
             for zip_code in range(start, end+1):
-                yield (zip_code, (client, source))
+                yield (zip_code, client)
 
 
 def get_client(zip_code):

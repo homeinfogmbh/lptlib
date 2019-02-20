@@ -27,7 +27,7 @@ def get_departures(address):
         raise Error('ZIP code is not an integer.')
 
     try:
-        client, source = get_client(zip_code)
+        client = get_client(zip_code)
     except KeyError:
         raise Error('No API for ZIP code "{}".'.format(zip_code), status=404)
 
@@ -38,7 +38,7 @@ def get_departures(address):
     else:
         raise Error('Invalid client "{}".'.format(type(client).__name__))
 
-    return (stops, source)
+    return (stops, client.source)
 
 
 def get_response(address):
