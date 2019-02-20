@@ -55,6 +55,11 @@ def clients():
             logger.error('No URL specified.')
             continue
 
+        try:
+            source = config['source']
+        except KeyError:
+            logger.error('No source ID specified.')
+
         if type_ == 'trias':
             try:
                 requestor_ref = config['requestor_ref']
@@ -78,7 +83,7 @@ def clients():
 
         for (start, end) in config.get('zip_codes'):
             for zip_code in range(start, end+1):
-                yield (zip_code, client)
+                yield (zip_code, (client, source))
 
 
 def get_client(zip_code):

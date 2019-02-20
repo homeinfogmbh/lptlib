@@ -27,6 +27,13 @@
               </xs:annotation>
             </xs:element>
         </xs:sequence>
+        <xs:attribute name="source" type="xs:string" use="required">
+          <xs:annotation>
+              <xs:documentation xml:lang="de">
+                  Quelle der Fahrplaninformationen.
+              </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
 
