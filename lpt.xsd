@@ -58,14 +58,14 @@
                   </xs:documentation>
               </xs:annotation>
             </xs:element>
-            <xs:element name="longitude" type="xs:decimal">
+            <xs:element name="longitude" type="xs:float">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
                       Längengrad.
                   </xs:documentation>
               </xs:annotation>
             </xs:element>
-            <xs:element name="latitude" type="xs:decimal">
+            <xs:element name="latitude" type="xs:float">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
                       Breitengrad.
