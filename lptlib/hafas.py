@@ -23,14 +23,14 @@ def _make_stop_event(departure):
     """Creates a stop from the respective HAFAS Departure element."""
 
     line = str(departure.Product.line)
-    scheduled = '{}T{}'.format(departure.date, departure.time)
+    scheduled = f'{departure.date}T{departure.time}'
     scheduled = strpdatetime(scheduled)
 
     if departure.rtTime is None:
         estimated = None
     else:
         estimated_date = departure.rtDate or departure.date
-        estimated = '{}T{}'.format(estimated_date, departure.rtTime)
+        estimated = f'{estimated_date}T{departure.rtTime}'
         estimated = strpdatetime(estimated)
 
     destination = str(departure.direction)

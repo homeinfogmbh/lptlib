@@ -25,7 +25,7 @@ def get_departures(address):
     try:
         client = get_client(zip_code)
     except KeyError:
-        raise Error('No API for ZIP code "{}".'.format(zip_code), status=404)
+        raise Error(f'No API for ZIP code "{zip_code}".', status=404)
 
     return (client.get_departures(address), client.source)
 

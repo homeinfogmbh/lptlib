@@ -71,7 +71,7 @@ class Client:   # pylint: disable=R0903
         if isinstance(self.client, TriasClient):
             return get_departures_trias(self.client, address)
 
-        raise TypeError('Invalid client type "{}".'.format(self.client))
+        raise TypeError(f'Invalid client type "{self.client}".')
 
     @classmethod
     def from_config(cls, config):
@@ -87,7 +87,7 @@ class Client:   # pylint: disable=R0903
             access_id = config['access_id']
             client = HafasClient(url, access_id)
         else:
-            raise ValueError('Invalid client type: {}.'.format(type_))
+            raise ValueError(f'Invalid client type: {type_}.')
 
         source = config['source']
         return cls(client, source)
