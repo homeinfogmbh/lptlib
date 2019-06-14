@@ -51,7 +51,8 @@ def _stop_events(departures):
 def get_departures(client, address):
     """Returns departures from the respective HAFAS client."""
 
-    location_list = client.locations(str(address), type='S')  # Stations only.
+    address = f'{address.street} {address.house_number}, {address.zip_code}'
+    location_list = client.locations(address, type='S')  # Stations only.
     stop_locations = location_list.StopLocation
     stops = []
 

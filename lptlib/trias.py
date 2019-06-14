@@ -73,7 +73,8 @@ def _stop_events(stop_event_results):
 def get_departures(client, address):
     """Returns departures from the respective Trias client."""
 
-    geo_coordinates = client.geocoordinates(str(address))
+    address = f'{address.street} {address.house_number}, {address.zip_code}'
+    geo_coordinates = client.geocoordinates(address)
     trias = client.stops(geo_coordinates)
     payload = trias.ServiceDelivery.DeliveryPayload
     locations = payload.LocationInformationResponse.Location
