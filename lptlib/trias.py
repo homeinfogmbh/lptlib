@@ -9,6 +9,12 @@ from lptlib.datastructures import Stop, StopEvent
 __all__ = ['get_departures']
 
 
+def _fix_address(address):
+    """Fixes addresses."""
+
+    return address.replace('ß', 'ss')
+
+
 def _make_stop(location, departures):
     """Creates a stop from the respective
     Trias
@@ -73,7 +79,8 @@ def _stop_events(stop_event_results):
 def get_departures(client, address):
     """Returns departures from the respective Trias client."""
 
-    geo_coordinates = client.geocoordinates(str(address))
+    address = _fix_address(str(address))
+    geo_coordinates = client.geocoordinates()
     trias = client.stops(geo_coordinates)
     payload = trias.ServiceDelivery.DeliveryPayload
     locations = payload.LocationInformationResponse.Location
