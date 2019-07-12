@@ -9,7 +9,7 @@ from lptlib.dom import Stop as StopDOM  # pylint: disable=E0401,E0611
 from lptlib.dom import StopEvent as StopEventDOM  # pylint: disable=E0401,E0611
 
 
-__all__ = ['Stop', 'StopEvent']
+__all__ = ['StopEvent', 'Stop']
 
 
 class StopEvent(NamedTuple):
