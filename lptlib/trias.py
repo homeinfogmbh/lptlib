@@ -80,7 +80,7 @@ def get_departures(client, address):
     """Returns departures from the respective Trias client."""
 
     address = _fix_address(str(address))
-    geo_coordinates = client.geocoordinates()
+    geo_coordinates = client.geocoordinates(address)
     trias = client.stops(geo_coordinates)
     payload = trias.ServiceDelivery.DeliveryPayload
     locations = payload.LocationInformationResponse.Location
