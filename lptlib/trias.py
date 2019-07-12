@@ -9,10 +9,24 @@ from lptlib.datastructures import Stop, StopEvent
 __all__ = ['get_departures']
 
 
+STRING_REPLACEMENTS = {
+    'ß': 'ss',
+    'ä': 'ae',
+    'ö': 'oe',
+    'ü': 'ue',
+    'Ä': 'Ae',
+    'Ö': 'Oe',
+    'Ü': 'Ue'
+}
+
+
 def _fix_address(address):
     """Fixes addresses."""
 
-    return address.replace('ß', 'ss')
+    for key, value in STRING_REPLACEMENTS:
+        address = address.replace(key, value)
+
+    return address
 
 
 def _make_stop(location, departures):
