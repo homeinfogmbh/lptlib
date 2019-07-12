@@ -23,7 +23,7 @@ STRING_REPLACEMENTS = {
 def _fix_address(address):
     """Fixes addresses."""
 
-    for key, value in STRING_REPLACEMENTS:
+    for key, value in STRING_REPLACEMENTS.items():
         address = address.replace(key, value)
 
     return address
