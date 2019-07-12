@@ -90,10 +90,14 @@ def _stop_events(stop_event_results):
         yield _make_stop_event(stop_event_result)
 
 
-def get_departures(client, address):
+def get_departures(client, address, fix_address=False):
     """Returns departures from the respective Trias client."""
 
-    address = _fix_address(str(address))
+    address = str(address)
+
+    if fix_address:
+        address = _fix_address(address)
+
     geo_coordinates = client.geocoordinates(address)
     trias = client.stops(geo_coordinates)
     payload = trias.ServiceDelivery.DeliveryPayload

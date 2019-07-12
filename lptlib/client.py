@@ -58,10 +58,11 @@ def get_client(zip_code):
 class Client:   # pylint: disable=R0903
     """A generic local public transport API client."""
 
-    def __init__(self, client, source):
+    def __init__(self, client, source, fix_address=False):
         """Sets client and source."""
         self.client = client
         self.source = source
+        self.fix_address = fix_address
 
     def get_departures(self, address):
         """Returns the respective departures."""
@@ -69,7 +70,8 @@ class Client:   # pylint: disable=R0903
             return get_departures_hafas(self.client, address)
 
         if isinstance(self.client, TriasClient):
-            return get_departures_trias(self.client, address)
+            return get_departures_trias(
+                self.client, address, fix_address=self.fix_address)
 
         raise TypeError(f'Invalid client type "{self.client}".')
 
@@ -79,6 +81,7 @@ class Client:   # pylint: disable=R0903
         type_ = config['type'].strip().lower()
         url = config['url']
         debug = config.get('debug', False)
+        fix_address = config.get('fix_address', False)
 
         if type_ == 'trias':
             requestor_ref = config['requestor_ref']
@@ -90,4 +93,4 @@ class Client:   # pylint: disable=R0903
             raise ValueError(f'Invalid client type: {type_}.')
 
         source = config['source']
-        return cls(client, source)
+        return cls(client, source, fix_address=fix_address)
