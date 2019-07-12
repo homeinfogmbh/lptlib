@@ -78,13 +78,11 @@ class Client:   # pylint: disable=R0903
         """Creates an instance from the respective config entry."""
         type_ = config['type'].strip().lower()
         url = config['url']
-        encoding = config.get('encoding', 'utf-8')
         debug = config.get('debug', False)
 
         if type_ == 'trias':
             requestor_ref = config['requestor_ref']
-            client = TriasClient(
-                url, requestor_ref, encoding=encoding, debug=debug)
+            client = TriasClient(url, requestor_ref, debug=debug)
         elif type_ == 'hafas':
             access_id = config['access_id']
             client = HafasClient(url, access_id)
