@@ -57,7 +57,9 @@ def get_departures(client, address):
     """Returns departures from the respective HAFAS client."""
 
     LOGGER.debug('Address: %s', address)
-    location_list = client.locations(str(address), type='S')  # Stations only.
+    # Re-format address string for best matches within a certain city.
+    address = f'{address.city} {address.street} {address.house_number}'
+    location_list = client.locations(address, type='S')  # Stations only.
     LOGGER.debug('Location list: %s', location_list.toxml())
     stop_locations = location_list.StopLocation
     stops = []
