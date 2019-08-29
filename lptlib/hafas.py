@@ -67,6 +67,7 @@ def get_departures(client, address):
             break
 
         departure_board = client.departure_board(stop_location.id)
+        LOGGER.debug('Departure board: %s', departure_board.toxml())
         departures = list(_stop_events(departure_board.Departure))
         stop = _make_stop(stop_location, departures)
         stops.append(stop)

@@ -115,6 +115,7 @@ def get_departures(client, address, fix_address=False):
 
         stop_point_ref = location.Location.StopPoint.StopPointRef.value()
         trias = client.stop_event(stop_point_ref)
+        LOGGER.debug('Stops event: %s', trias.toxml())
         payload = trias.ServiceDelivery.DeliveryPayload
         stop_event_results = payload.StopEventResponse.StopEventResult
         departures = list(_stop_events(stop_event_results))
