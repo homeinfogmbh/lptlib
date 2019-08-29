@@ -76,6 +76,11 @@ def get_departures(client, address):
             break
 
         departure_board = client.departure_board(stop_location.id)
+
+        if not departure_board.Departure:  # Skip stations without stop events.
+            stopc -= 1
+            continue
+
         LOGGER.debug('Departure board: %s', departure_board.toxml())
         departures = list(_stop_events(departure_board.Departure))
         stop = _make_stop(stop_location, departures)
