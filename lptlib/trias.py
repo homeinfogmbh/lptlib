@@ -1,6 +1,7 @@
 """Translates TRIAS API responses."""
 
 from datetime import datetime
+from logging import getLogger
 
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
 from lptlib.datastructures import Stop, StopEvent
@@ -9,6 +10,7 @@ from lptlib.datastructures import Stop, StopEvent
 __all__ = ['get_departures']
 
 
+LOGGER = getLogger('TRIAS')
 STRING_REPLACEMENTS = {
     'ß': 'ss',
     'ä': 'ae',
@@ -93,13 +95,16 @@ def _stop_events(stop_event_results):
 def get_departures(client, address, fix_address=False):
     """Returns departures from the respective Trias client."""
 
+    LOGGER.debug('Address: %s', address)
     address = str(address)
 
     if fix_address:
         address = _fix_address(address)
 
     geo_coordinates = client.geocoordinates(address)
+    LOGGER.debug('Geo coordinates: %s', geo_coordinates)
     trias = client.stops(geo_coordinates)
+    LOGGER.debug('Stops: %s', trias.toxml())
     payload = trias.ServiceDelivery.DeliveryPayload
     locations = payload.LocationInformationResponse.Location
     stops = []

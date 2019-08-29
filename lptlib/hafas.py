@@ -1,5 +1,7 @@
 """Translates HAFAS API responses."""
 
+from logging import getLogger
+
 from timelib import strpdatetime
 
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
@@ -7,6 +9,9 @@ from lptlib.datastructures import Stop, StopEvent
 
 
 __all__ = ['get_departures']
+
+
+LOGGER = getLogger('HAFAS')
 
 
 def _make_stop(stop_location, departures):
@@ -51,7 +56,9 @@ def _stop_events(departures):
 def get_departures(client, address):
     """Returns departures from the respective HAFAS client."""
 
+    LOGGER.debug('Address: %s', address)
     location_list = client.locations(str(address), type='S')  # Stations only.
+    LOGGER.debug('Location list: %s', location_list.toxml())
     stop_locations = location_list.StopLocation
     stops = []
 
