@@ -68,19 +68,19 @@ def get_departures(client, address):
 
     stops = client.nearbystops(coord_location.lat, coord_location.lon)
     LOGGER.debug('Stops list: %s', stops.toxml())
-    stop_locations = stops.StopLocation
+    stopc = 1
     stops = []
 
-    for stopc, stop_location in enumerate(stop_locations, start=1):
+    for stop_location in stops.StopLocation:
         if stopc > MAX_STOPS:
             break
 
         departure_board = client.departure_board(stop_location.id)
 
         if not departure_board.Departure:  # Skip stations without stop events.
-            stopc -= 1
             continue
 
+        stopc += 1
         LOGGER.debug('Departure board: %s', departure_board.toxml())
         departures = list(_stop_events(departure_board.Departure))
         stop = _make_stop(stop_location, departures)
