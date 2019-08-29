@@ -66,7 +66,7 @@ def get_departures(client, address):
     except IndexError:
         return []
 
-    stops = client.nearbystops(coord_location.lat, coord_location.long)
+    stops = client.nearbystops(coord_location.lat, coord_location.lon)
     LOGGER.debug('Stops list: %s', stops.toxml())
     stop_locations = stops.StopLocation
     stops = []
