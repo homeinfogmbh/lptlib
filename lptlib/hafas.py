@@ -1,7 +1,5 @@
 """Translates HAFAS API responses."""
 
-from logging import getLogger
-
 from timelib import strpdatetime
 
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
@@ -9,9 +7,6 @@ from lptlib.datastructures import Stop, StopEvent
 
 
 __all__ = ['get_departures']
-
-
-LOGGER = getLogger('HAFAS')
 
 
 def _make_stop(stop_location, departures):
@@ -56,23 +51,18 @@ def _stop_events(departures):
 def get_departures(client, address):
     """Returns departures from the respective HAFAS client."""
 
-    LOGGER.debug('Address: %s', address)
-    # Re-format address string for best matches within a certain city.
     addresses = client.locations(str(address), type='A')
-    LOGGER.debug('Address list: %s', addresses.toxml())
 
     try:
         coord_location = addresses.CoordLocation[0]
     except IndexError:
-        return []
+        return []   # Address cannot be found in API.
 
     nearby_stops = client.nearbystops(coord_location.lat, coord_location.lon)
-    LOGGER.debug('Stops list: %s', nearby_stops.toxml())
-    stopc = 1
     stops = []
 
     for stop_location in nearby_stops.StopLocation:
-        if stopc > MAX_STOPS:
+        if len(stops) >= MAX_STOPS:
             break
 
         departure_board = client.departure_board(stop_location.id)
@@ -80,8 +70,6 @@ def get_departures(client, address):
         if not departure_board.Departure:  # Skip stations without stop events.
             continue
 
-        stopc += 1
-        LOGGER.debug('Departure board: %s', departure_board.toxml())
         departures = list(_stop_events(departure_board.Departure))
         stop = _make_stop(stop_location, departures)
         stops.append(stop)
