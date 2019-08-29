@@ -58,10 +58,17 @@ def get_departures(client, address):
 
     LOGGER.debug('Address: %s', address)
     # Re-format address string for best matches within a certain city.
-    address = f'{address.city} {address.street} {address.house_number}'
-    location_list = client.locations(address, type='S')  # Stations only.
-    LOGGER.debug('Location list: %s', location_list.toxml())
-    stop_locations = location_list.StopLocation
+    addresses = client.locations(str(address), type='A')
+    LOGGER.debug('Address list: %s', addresses.toxml())
+
+    try:
+        coord_location = addresses.CoordLocation[0]
+    except IndexError:
+        return []
+
+    stops = client.nearbystops(coord_location.lat, coord_location.long)
+    LOGGER.debug('Stops list: %s', stops.toxml())
+    stop_locations = stops.StopLocation
     stops = []
 
     for stopc, stop_location in enumerate(stop_locations, start=1):
