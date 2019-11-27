@@ -90,7 +90,7 @@ class Client:   # pylint: disable=R0903
             client = TriasClient.get(
                 version, url, requestor_ref, validate=validate, debug=debug)
         elif type_ == 'hafas':
-            access_id = config['access_id']
+            access_id = config.get('access_id')
             client = HafasClient(url, access_id)
         else:
             raise ValueError(f'Invalid client type: {type_}.')
