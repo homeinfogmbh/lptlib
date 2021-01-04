@@ -24,8 +24,10 @@ def _make_stop(stop_location, departures) -> Stop:
 def _make_stop_event(departure) -> StopEvent:
     """Creates a stop from the respective HAFAS Departure element."""
 
+    print('departure type:', departure, type(departure), flush=True)
     line = str(departure.Product.line)
     scheduled = f'{departure.date}T{departure.time}'
+    print('scheduled time format:', scheduled, flush=True)
     scheduled = strpdatetime(scheduled)
 
     if departure.rtTime is None:
@@ -33,6 +35,7 @@ def _make_stop_event(departure) -> StopEvent:
     else:
         estimated_date = departure.rtDate or departure.date
         estimated = f'{estimated_date}T{departure.rtTime}'
+        print('estimated time format:', estimated, flush=True)
         estimated = strpdatetime(estimated)
 
     destination = str(departure.direction)
@@ -63,6 +66,8 @@ def get_departures(client, address: str) -> Iterator[Stop]:
     nearby_stops = client.nearbystops(coord_location.lat, coord_location.lon)
 
     for stops, stop_location in enumerate(nearby_stops.StopLocation, start=1):
+        print('stop location type:', stop_location, type(stop_location),
+              flush=True)
         if stops >= MAX_STOPS:
             break
 
