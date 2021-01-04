@@ -20,7 +20,7 @@ def _make_stop(stop_location: StopLocation,
     name = str(stop_location.name)
     latitude = float(stop_location.lat)
     longitude = float(stop_location.lon)
-    return Stop(ident, name, longitude, latitude, departures)
+    return Stop(ident, name, latitude, longitude, departures)
 
 
 def _make_stop_event(departure: Departure) -> StopEvent:
@@ -37,7 +37,7 @@ def _make_stop_event(departure: Departure) -> StopEvent:
 
     destination = str(departure.direction)
     type_ = str(departure.Product.catOutL)
-    return StopEvent(line, scheduled, estimated, destination, type_)
+    return StopEvent(type_, line, destination, scheduled, estimated)
 
 
 def _stop_events(departures: Iterable[Departure]) -> Iterator[StopEvent]:

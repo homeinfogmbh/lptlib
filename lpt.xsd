@@ -44,7 +44,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="ident" type="xs:string">
+            <xs:element name="id" type="xs:string">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
                       ID innerhalb der jeweiligen Schnittstelle.
@@ -90,17 +90,17 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
+            <xs:element name="type" type="xs:string">
+              <xs:annotation>
+                  <xs:documentation xml:lang="de">
+                      Typ des ÖPNV Fahrzeugs (Bus, Straßenbahn, etc.).
+                  </xs:documentation>
+              </xs:annotation>
+            </xs:element>
             <xs:element name="line" type="xs:string">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
                       Name der ÖPNV Linie.
-                  </xs:documentation>
-              </xs:annotation>
-            </xs:element>
-            <xs:element name="scheduled" type="xs:dateTime">
-              <xs:annotation>
-                  <xs:documentation xml:lang="de">
-                      Geplante Abfahrtszeit.
                   </xs:documentation>
               </xs:annotation>
             </xs:element>
@@ -111,10 +111,10 @@
                   </xs:documentation>
               </xs:annotation>
             </xs:element>
-            <xs:element name="type" type="xs:string">
+            <xs:element name="scheduled" type="xs:dateTime">
               <xs:annotation>
                   <xs:documentation xml:lang="de">
-                      Typ des ÖPNV Fahrzeugs (Bus, Straßenbahn, etc.).
+                      Geplante Abfahrtszeit.
                   </xs:documentation>
               </xs:annotation>
             </xs:element>

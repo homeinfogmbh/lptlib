@@ -47,7 +47,7 @@ def _make_stop(location: LocationResultStructure,
     name = str(location.Location.StopPoint.StopPointName.Text)
     longitude = float(location.Location.GeoPosition.Longitude)
     latitude = float(location.Location.GeoPosition.Latitude)
-    return Stop(ident, name, longitude, latitude, departures)
+    return Stop(ident, name, latitude, longitude, departures)
 
 
 def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
@@ -81,7 +81,7 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
         route = str(route)
 
     type_ = str(_service.Mode.Name.Text)
-    return StopEvent(line, scheduled, estimated, destination, type_)
+    return StopEvent(type_, line, destination, scheduled, estimated)
 
 
 def _stop_events(stop_event_results: Iterable[StopEventResultStructure]) \
