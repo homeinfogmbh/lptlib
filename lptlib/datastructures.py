@@ -3,8 +3,6 @@
 from datetime import datetime
 from typing import Iterable, NamedTuple
 
-from timelib import isoformat
-
 from lptlib.dom import Stop as StopDOM  # pylint: disable=E0401,E0611
 from lptlib.dom import StopEvent as StopEventDOM  # pylint: disable=E0401,E0611
 
@@ -21,16 +19,22 @@ class StopEvent(NamedTuple):
     destination: str
     type: str
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """Returns a JSON-ish dict."""
+        if self.estimated is None:
+            estimated = None
+        else:
+            estimated = self.estimated.isoformat()
+
         return {
             'line': self.line,
             'scheduled': self.scheduled.isoformat(),
-            'estimated': isoformat(self.estimated),
+            'estimated': estimated,
             'destination': self.destination,
-            'type': self.type}
+            'type': self.type
+        }
 
-    def to_dom(self):
+    def to_dom(self) -> StopEventDOM:
         """Returns an XML DOM."""
         stop_event = StopEventDOM()
         stop_event.line = self.line
@@ -50,17 +54,17 @@ class Stop(NamedTuple):
     latitude: float
     departures: Iterable[StopEvent]
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """Returns a JSON-ish dict."""
         return {
             'ident': self.ident,
             'name': self.name,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'departures': [
-                departure.to_json() for departure in self.departures]}
+            'departures': [dep.to_json() for dep in self.departures]
+        }
 
-    def to_dom(self):
+    def to_dom(self) -> StopDOM:
         """Returns an XML DOM."""
         stop = StopDOM()
         stop.ident = self.ident

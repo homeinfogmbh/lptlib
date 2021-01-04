@@ -1,15 +1,19 @@
 """Generalized local public transportation API."""
 
+from typing import Iterator, Tuple, Union
+
+from mdb import Address
 from wsgilib import Error, ACCEPT, XML, JSON
 
 from lptlib.client import get_client
+from lptlib.datastructures import Stop
 from lptlib.dom import stops as stops_dom   # pylint: disable=E0401,E0611
 
 
 __all__ = ['get_departures', 'get_response']
 
 
-def get_departures(address):
+def get_departures(address: Address) -> Tuple[Iterator[Stop], str]:
     """Returns a list of departures."""
 
     if address is None:
@@ -18,19 +22,19 @@ def get_departures(address):
     try:
         zip_code = int(address.zip_code)
     except TypeError:
-        raise Error("No ZIP code specified in terminal's address.")
+        raise Error('Address has no ZIP code.') from None
     except ValueError:
-        raise Error('ZIP code is not an integer.')
+        raise Error('ZIP code is not an integer.') from None
 
     try:
         client = get_client(zip_code)
     except KeyError:
-        raise Error(f'No API for ZIP code "{zip_code}".', status=404)
+        raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
     return (client.get_departures(address), client.source)
 
 
-def get_response(address):
+def get_response(address: Address) -> Union[JSON, XML]:
     """Returns the respective departures."""
 
     stops, source = get_departures(address)
@@ -38,7 +42,8 @@ def get_response(address):
     if 'application/json' in ACCEPT:
         json = {
             'source': source,
-            'stops': [stop.to_json() for stop in stops]}
+            'stops': [stop.to_json() for stop in stops]
+        }
         return JSON(json)
 
     xml = stops_dom()

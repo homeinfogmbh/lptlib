@@ -1,13 +1,16 @@
 """Generic LPT client."""
 
+from __future__ import annotations
 from functools import lru_cache
 from json import load
 from logging import getLogger
+from typing import Dict, Iterator, Union
 
 from functoolsplus import coerce
 from hafas import Client as HafasClient
 from trias import Client as TriasClient
 
+from lptlib.datastructures import Stop
 from lptlib.hafas import get_departures as get_departures_hafas
 from lptlib.trias import get_departures as get_departures_trias
 
@@ -20,7 +23,7 @@ CLIENTS_CONFIG = '/usr/local/etc/lpt.json'
 
 @lru_cache()
 @coerce(dict)
-def clients():
+def clients() -> Dict[int, Client]:
     """Loads the clients map."""
 
     logger = getLogger('LPT')
@@ -49,7 +52,7 @@ def clients():
                 yield (zip_code, client)
 
 
-def get_client(zip_code):
+def get_client(zip_code: str) -> Client:
     """Loads the clients map."""
 
     return clients()[zip_code]  # pylint: disable=E1136
@@ -58,13 +61,14 @@ def get_client(zip_code):
 class Client:   # pylint: disable=R0903
     """A generic local public transport API client."""
 
-    def __init__(self, client, source, fix_address=False):
+    def __init__(self, client: Union[HafasClient, TriasClient], source: str,
+                 fix_address: bool = False):
         """Sets client and source."""
         self.client = client
         self.source = source
         self.fix_address = fix_address
 
-    def get_departures(self, address):
+    def get_departures(self, address: str) -> Iterator[Stop]:
         """Returns the respective departures."""
         if isinstance(self.client, HafasClient):
             return get_departures_hafas(self.client, address)
@@ -73,7 +77,7 @@ class Client:   # pylint: disable=R0903
             self.client, address, fix_address=self.fix_address)
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config: dict) -> Client:
         """Creates an instance from the respective config entry."""
         type_ = config['type'].strip().lower()
         url = config['url']

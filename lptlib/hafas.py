@@ -1,5 +1,7 @@
 """Translates HAFAS API responses."""
 
+from typing import Iterator
+
 from timelib import strpdatetime
 
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
@@ -9,7 +11,7 @@ from lptlib.datastructures import Stop, StopEvent
 __all__ = ['get_departures']
 
 
-def _make_stop(stop_location, departures):
+def _make_stop(stop_location, departures) -> Stop:
     """Creates a stop from the respective HAFAS CoordLocation element."""
 
     ident = str(stop_location.id)
@@ -19,7 +21,7 @@ def _make_stop(stop_location, departures):
     return Stop(ident, name, longitude, latitude, departures)
 
 
-def _make_stop_event(departure):
+def _make_stop_event(departure) -> StopEvent:
     """Creates a stop from the respective HAFAS Departure element."""
 
     line = str(departure.Product.line)
@@ -38,7 +40,7 @@ def _make_stop_event(departure):
     return StopEvent(line, scheduled, estimated, destination, type_)
 
 
-def _stop_events(departures):
+def _stop_events(departures) -> Iterator[StopEvent]:
     """Yields stop events of a Departure node."""
 
     for depc, departure in enumerate(departures, start=1):
@@ -48,7 +50,7 @@ def _stop_events(departures):
         yield _make_stop_event(departure)
 
 
-def get_departures(client, address):
+def get_departures(client, address: str) -> Iterator[Stop]:
     """Returns departures from the respective HAFAS client."""
 
     addresses = client.locations(str(address), type='A')
@@ -56,13 +58,12 @@ def get_departures(client, address):
     try:
         coord_location = addresses.CoordLocation[0]
     except IndexError:
-        return []   # Address cannot be found in API.
+        return
 
     nearby_stops = client.nearbystops(coord_location.lat, coord_location.lon)
-    stops = []
 
-    for stop_location in nearby_stops.StopLocation:
-        if len(stops) >= MAX_STOPS:
+    for stops, stop_location in enumerate(nearby_stops.StopLocation, start=1):
+        if stops >= MAX_STOPS:
             break
 
         departure_board = client.departure_board(stop_location.id)
@@ -71,7 +72,4 @@ def get_departures(client, address):
             continue
 
         departures = list(_stop_events(departure_board.Departure))
-        stop = _make_stop(stop_location, departures)
-        stops.append(stop)
-
-    return stops
+        yield _make_stop(stop_location, departures)
