@@ -6,7 +6,7 @@ from logging import getLogger
 
 from functoolsplus import coerce
 from hafas import Client as HafasClient
-from trias import Client as TriasClient
+from trias import load as TriasClient
 
 from lptlib.hafas import get_departures as get_departures_hafas
 from lptlib.trias import get_departures as get_departures_trias
@@ -69,11 +69,8 @@ class Client:   # pylint: disable=R0903
         if isinstance(self.client, HafasClient):
             return get_departures_hafas(self.client, address)
 
-        if isinstance(self.client, TriasClient):
-            return get_departures_trias(
-                self.client, address, fix_address=self.fix_address)
-
-        raise TypeError(f'Invalid client type "{self.client}".')
+        return get_departures_trias(
+            self.client, address, fix_address=self.fix_address)
 
     @classmethod
     def from_config(cls, config):
@@ -87,7 +84,7 @@ class Client:   # pylint: disable=R0903
             version = config.get('version', '1.1')
             requestor_ref = config['requestor_ref']
             validate = config.get('validate', True)
-            client = TriasClient.get(
+            client = TriasClient(
                 version, url, requestor_ref, validate=validate, debug=debug)
         elif type_ == 'hafas':
             access_id = config['access_id']
