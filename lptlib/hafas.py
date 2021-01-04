@@ -1,8 +1,9 @@
 """Translates HAFAS API responses."""
 
-from typing import Iterator
+from datetime import datetime
+from typing import Iterable, Iterator, List
 
-from timelib import strpdatetime
+from hafas.client import Departure, StopLocation
 
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
 from lptlib.datastructures import Stop, StopEvent
@@ -11,7 +12,8 @@ from lptlib.datastructures import Stop, StopEvent
 __all__ = ['get_departures']
 
 
-def _make_stop(stop_location, departures) -> Stop:
+def _make_stop(stop_location: StopLocation,
+               departures: List[StopEvent]) -> Stop:
     """Creates a stop from the respective HAFAS CoordLocation element."""
 
     ident = str(stop_location.id)
@@ -21,29 +23,24 @@ def _make_stop(stop_location, departures) -> Stop:
     return Stop(ident, name, longitude, latitude, departures)
 
 
-def _make_stop_event(departure) -> StopEvent:
+def _make_stop_event(departure: Departure) -> StopEvent:
     """Creates a stop from the respective HAFAS Departure element."""
 
-    print('departure type:', departure, type(departure), flush=True)
     line = str(departure.Product.line)
-    scheduled = f'{departure.date}T{departure.time}'
-    print('scheduled time format:', scheduled, flush=True)
-    scheduled = strpdatetime(scheduled)
+    scheduled = datetime.fromisoformat(f'{departure.date}T{departure.time}')
 
     if departure.rtTime is None:
         estimated = None
     else:
-        estimated_date = departure.rtDate or departure.date
-        estimated = f'{estimated_date}T{departure.rtTime}'
-        print('estimated time format:', estimated, flush=True)
-        estimated = strpdatetime(estimated)
+        est_date = departure.rtDate or departure.date
+        estimated = datetime.fromisoformat(f'{est_date}T{departure.rtTime}')
 
     destination = str(departure.direction)
     type_ = str(departure.Product.catOutL)
     return StopEvent(line, scheduled, estimated, destination, type_)
 
 
-def _stop_events(departures) -> Iterator[StopEvent]:
+def _stop_events(departures: Iterable[Departure]) -> Iterator[StopEvent]:
     """Yields stop events of a Departure node."""
 
     for depc, departure in enumerate(departures, start=1):
@@ -66,8 +63,6 @@ def get_departures(client, address: str) -> Iterator[Stop]:
     nearby_stops = client.nearbystops(coord_location.lat, coord_location.lon)
 
     for stops, stop_location in enumerate(nearby_stops.StopLocation, start=1):
-        print('stop location type:', stop_location, type(stop_location),
-              flush=True)
         if stops >= MAX_STOPS:
             break
 
