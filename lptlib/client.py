@@ -1,12 +1,11 @@
 """Generic LPT client."""
 
 from __future__ import annotations
-from functools import lru_cache
 from json import load
 from logging import getLogger
-from typing import Dict, Iterator, Union
+from pathlib import Path
+from typing import Iterator, Union
 
-from functoolsplus import coerce
 from hafas import Client as HafasClient
 from trias import Client as TriasClient
 
@@ -15,47 +14,41 @@ from lptlib.hafas import get_departures as get_departures_hafas
 from lptlib.trias import get_departures as get_departures_trias
 
 
-__all__ = ['clients', 'get_client', 'Client']
+__all__ = ['CLIENTS', 'load_clients', 'Client']
 
 
-CLIENTS_CONFIG = '/usr/local/etc/lpt.json'
+CLIENTS_CONFIG = Path('/usr/local/etc/lpt.json')
+CLIENTS = {}
+LOGGER = getLogger('LPT')
 
 
-@lru_cache()
-@coerce(dict)
-def clients() -> Dict[int, Client]:
-    """Loads the clients map."""
+def load_clients(path: Path = CLIENTS_CONFIG):
+    """Loads ZIP code / client tuples into CLIENTS."""
 
-    logger = getLogger('LPT')
+    CLIENTS.clear()
 
     try:
-        with open(CLIENTS_CONFIG, 'r') as file:
+        with path.open('r') as file:
             json = load(file)
     except FileNotFoundError:
-        logger.error('Config file "%s" not found.', CLIENTS_CONFIG)
+        LOGGER.error('Config file "%s" not found.', path)
         return
 
     for name, config in json.items():
-        logger.info('Loading %s.', name)
+        LOGGER.info('Loading %s.', name)
 
         try:
             client = Client.from_config(config)
         except KeyError as key_error:
-            logger.error('No %s specified.', key_error)
+            LOGGER.error('No %s specified.', key_error)
             continue
         except ValueError as value_error:
-            logger.error(value_error)
+            LOGGER.error(value_error)
             continue
 
         for (start, end) in config.get('zip_codes'):
             for zip_code in range(start, end+1):
-                yield (zip_code, client)
-
-
-def get_client(zip_code: str) -> Client:
-    """Loads the clients map."""
-
-    return clients()[zip_code]  # pylint: disable=E1136
+                CLIENTS[zip_code] = client
 
 
 class Client:   # pylint: disable=R0903
@@ -79,22 +72,20 @@ class Client:   # pylint: disable=R0903
     @classmethod
     def from_config(cls, config: dict) -> Client:
         """Creates an instance from the respective config entry."""
-        type_ = config['type'].strip().lower()
+        type_ = config['type'].strip().casefold()
         url = config['url']
-        debug = config.get('debug', False)
-        fix_address = config.get('fix_address', False)
 
         if type_ == 'trias':
             version = config.get('version', '1.1')
             requestor_ref = config['requestor_ref']
             validate = config.get('validate', True)
             client = TriasClient(
-                version, url, requestor_ref, validate=validate, debug=debug)
+                version, url, requestor_ref, validate=validate)
         elif type_ == 'hafas':
             access_id = config['access_id']
             client = HafasClient(url, access_id)
         else:
             raise ValueError(f'Invalid client type: {type_}.')
 
-        source = config['source']
-        return cls(client, source, fix_address=fix_address)
+        return cls(client, config['source'],
+                   fix_address=config.get('fix_address', False))

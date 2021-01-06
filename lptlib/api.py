@@ -5,7 +5,7 @@ from typing import Iterator, Tuple, Union
 from mdb import Address
 from wsgilib import Error, ACCEPT, XML, JSON
 
-from lptlib.client import get_client
+from lptlib.client import CLIENTS, load_clients
 from lptlib.datastructures import Stop
 from lptlib.dom import stops as stops_dom   # pylint: disable=E0401,E0611
 
@@ -26,8 +26,11 @@ def get_departures(address: Address) -> Tuple[Iterator[Stop], str]:
     except ValueError:
         raise Error('ZIP code is not an integer.') from None
 
+    if not CLIENTS:
+        load_clients()
+
     try:
-        client = get_client(zip_code)
+        client = CLIENTS[zip_code]
     except KeyError:
         raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
