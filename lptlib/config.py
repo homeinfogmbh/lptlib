@@ -7,6 +7,5 @@ __all__ = ['CONFIG', 'MAX_STOPS', 'MAX_DEPARTURES']
 
 
 CONFIG = loadcfg('lpt.conf')
-CONFIG_SECTION = CONFIG['LPT']
-MAX_STOPS = int(CONFIG_SECTION.get('stops', 3))
-MAX_DEPARTURES = int(CONFIG_SECTION.get('departures', 3))
+MAX_STOPS = CONFIG.getint('LPT', 'stops', fallback=3)
+MAX_DEPARTURES = CONFIG.getint('LPT', 'departures', fallback=3)
