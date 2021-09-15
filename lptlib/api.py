@@ -1,6 +1,6 @@
 """Generalized local public transportation API."""
 
-from typing import Iterator, Tuple, Union
+from typing import Iterator, Union
 
 from mdb import Address
 from wsgilib import Error, ACCEPT, XML, JSON
@@ -13,7 +13,7 @@ from lptlib.dom import stops as stops_dom   # pylint: disable=E0401,E0611
 __all__ = ['get_departures', 'get_response']
 
 
-def get_departures(address: Address) -> Tuple[Iterator[Stop], str]:
+def get_departures(address: Address) -> tuple[Iterator[Stop], str]:
     """Returns a list of departures."""
 
     if address is None:

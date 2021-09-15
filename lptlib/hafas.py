@@ -1,7 +1,7 @@
 """Translates HAFAS API responses."""
 
 from datetime import datetime
-from typing import Iterable, Iterator, List
+from typing import Iterable, Iterator
 
 from hafas.client import Departure, StopLocation
 
@@ -13,7 +13,7 @@ __all__ = ['get_departures']
 
 
 def _make_stop(stop_location: StopLocation,
-               departures: List[StopEvent]) -> Stop:
+               departures: list[StopEvent]) -> Stop:
     """Creates a stop from the respective HAFAS CoordLocation element."""
 
     ident = str(stop_location.id)

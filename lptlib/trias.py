@@ -1,7 +1,7 @@
 """Translates TRIAS API responses."""
 
 from datetime import datetime
-from typing import Iterable, Iterator, List
+from typing import Iterable, Iterator
 
 from trias.typing import LocationResultStructure, StopEventResultStructure
 
@@ -33,7 +33,7 @@ def _fix_address(address: str) -> str:
 
 
 def _make_stop(location: LocationResultStructure,
-               departures: List[StopEvent]) -> Stop:
+               departures: list[StopEvent]) -> Stop:
     """Creates a stop from the respective
     Trias
         → ServiceDelivery
