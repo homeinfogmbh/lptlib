@@ -56,9 +56,10 @@ def load_json(path: Path = CLIENTS_CONFIG) -> dict:
 
 
 @cache
-def load_clients(json: dict) -> dict[str, ClientWrapper]:
+def load_clients(path: Path = CLIENTS_CONFIG) -> dict[str, ClientWrapper]:
     """Loads name / client map."""
 
+    json = load_json(path)
     clients = {}
 
     for name, config in json.get('clients', {}).items():
@@ -77,9 +78,10 @@ def load_clients(json: dict) -> dict[str, ClientWrapper]:
 
 
 @cache
-def load_map(json: dict) -> dict[int, str]:
+def load_map(path: Path = CLIENTS_CONFIG) -> dict[int, str]:
     """Loads ZIP code / name map."""
 
+    json = load_json(path)
     map_ = {}
 
     for name, zip_codes in json.get('map', {}).items():
@@ -101,10 +103,10 @@ def load_map(json: dict) -> dict[int, str]:
 def get_client_by_name(name: str) -> ClientWrapper:
     """Returns a client for the given ZIP code."""
 
-    return load_clients(load_json())[name]
+    return load_clients()[name]
 
 
 def get_client_by_zip_code(zip_code: int) -> ClientWrapper:
     """Returns a client for the given ZIP code."""
 
-    return get_client_by_name(load_map(load_json())[zip_code])
+    return get_client_by_name(load_map()[zip_code])
