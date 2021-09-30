@@ -95,9 +95,9 @@ class Stops(NamedTuple):
             'source': self.source
         }
 
-    def to_dom(self) -> dom.Stops:
+    def to_dom(self) -> dom.stops:
         """Returns an XML DOM."""
-        stops = dom.Stops()
+        stops = dom.stops()
         stops.stop = [stop.to_dom() for stop in self.stops]
         stops.source = self.source
         return stops
