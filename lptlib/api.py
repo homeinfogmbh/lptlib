@@ -39,7 +39,7 @@ def get_departures_geo(geo: GeoCoordinates) -> Departures:
     """Returns departures by geo coordinates."""
 
     try:
-        client = get_client_by_name('EFA Detuschland')
+        client = get_client_by_name('EFA Deutschland')
     except KeyError:
         raise Error('General API not found.', status=404) from None
 
