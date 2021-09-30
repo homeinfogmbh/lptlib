@@ -91,7 +91,7 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
     def get_departures_addr(self, address: Union[Address, str], *,
                             stops: int = MAX_STOPS,
                             departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
-        """Returns departures from the respective HAFAS client."""
+        """Yields departures for the given address."""
         try:
             geo_coordinates = self.address_to_geo(address)
         except NoCoordLocationFound:
