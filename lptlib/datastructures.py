@@ -3,11 +3,10 @@
 from datetime import datetime
 from typing import Iterable, NamedTuple, Optional
 
-from lptlib.dom import Stop as StopDOM  # pylint: disable=E0401,E0611
-from lptlib.dom import StopEvent as StopEventDOM  # pylint: disable=E0401,E0611
+from lptlib import dom  # pylint: disable=E0611
 
 
-__all__ = ['GeoCoordinates', 'StopEvent', 'Stop', 'Departures']
+__all__ = ['GeoCoordinates', 'StopEvent', 'Stop', 'Stops']
 
 
 class GeoCoordinates(NamedTuple):
@@ -44,9 +43,9 @@ class StopEvent(NamedTuple):
             'estimated': self.estimated_str
         }
 
-    def to_dom(self) -> StopEventDOM:
+    def to_dom(self) -> dom.StopEvent:
         """Returns an XML DOM."""
-        stop_event = StopEventDOM()
+        stop_event = dom.StopEvent()
         stop_event.type = self.type
         stop_event.line = self.line
         stop_event.destination = self.destination
@@ -72,9 +71,9 @@ class Stop(NamedTuple):
             'departures': [dep.to_json() for dep in self.departures]
         }
 
-    def to_dom(self) -> StopDOM:
+    def to_dom(self) -> dom.Stop:
         """Returns an XML DOM."""
-        stop = StopDOM()
+        stop = dom.Stop()
         stop.id = self.id
         stop.name = self.name
         stop.latitude = self.geo.latitude
@@ -83,8 +82,22 @@ class Stop(NamedTuple):
         return stop
 
 
-class Departures(NamedTuple):
+class Stops(NamedTuple):
     """Contains departures info."""
 
-    departures: list[Stop]
+    stops: list[Stop]
     source: str
+
+    def to_json(self) -> dict:
+        """Returns a JSON-ish dict."""
+        return {
+            'stops': [stop.to_json() for stop in self.stops],
+            'source': self.source
+        }
+
+    def to_dom(self) -> dom.Stops:
+        """Returns an XML DOM."""
+        stops = dom.Stops()
+        stops.stop = [stop.to_som() for stop in self.stops]
+        stops.source = self.source
+        return stops

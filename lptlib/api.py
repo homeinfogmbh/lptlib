@@ -6,9 +6,8 @@ from mdb import Address
 from wsgilib import Error, ACCEPT, XML, JSON
 
 from lptlib.client import get_client_by_name, get_client_by_zip_code
-from lptlib.datastructures import Departures, GeoCoordinates
+from lptlib.datastructures import GeoCoordinates, Stops
 from lptlib.functions import is_geo_coordinates
-from lptlib.dom import stops as stops_dom   # pylint: disable=E0401,E0611
 
 
 __all__ = ['get_departures', 'get_response']
@@ -17,7 +16,7 @@ __all__ = ['get_departures', 'get_response']
 Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
 
 
-def get_departures_addr(address: Union[Address, str]) -> Departures:
+def get_departures_addr(address: Union[Address, str]) -> Stops:
     """Returns departures by address."""
 
     try:
@@ -32,10 +31,10 @@ def get_departures_addr(address: Union[Address, str]) -> Departures:
     except KeyError:
         raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
-    return (list(client.get_departures_addr(address)), client.source)
+    return Stops(list(client.get_departures_addr(address)), client.source)
 
 
-def get_departures_geo(geo: GeoCoordinates) -> Departures:
+def get_departures_geo(geo: GeoCoordinates) -> Stops:
     """Returns departures by geo coordinates."""
 
     try:
@@ -43,10 +42,10 @@ def get_departures_geo(geo: GeoCoordinates) -> Departures:
     except KeyError:
         raise Error('General API not found.', status=404) from None
 
-    return (list(client.get_departures_geo(geo)), client.source)
+    return Stops(list(client.get_departures_geo(geo)), client.source)
 
 
-def get_departures(target: Target) -> Departures:
+def get_departures(target: Target) -> Stops:
     """Returns a list of departures."""
 
     if target is None:
@@ -64,16 +63,9 @@ def get_departures(target: Target) -> Departures:
 def get_response(target: Target) -> Union[JSON, XML]:
     """Returns the respective departures."""
 
-    stops, source = get_departures(target)
+    stops = get_departures(target)
 
     if 'application/json' in ACCEPT:
-        json = {
-            'source': source,
-            'stops': [stop.to_json() for stop in stops]
-        }
-        return JSON(json)
+        return JSON(stops.to_json())
 
-    xml = stops_dom()
-    xml.source = source
-    xml.stop = [stop.to_dom() for stop in stops]
-    return XML(xml)
+    return XML(stops.to_dom())
