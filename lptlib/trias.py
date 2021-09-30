@@ -126,7 +126,8 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
 
         return self.client.geocoordinates(address)
 
-    def get_departures(self, address: Union[Address, str]) -> Iterator[Stop]:
+    def get_departures_addr(self, address: Union[Address, str]) \
+            -> Iterator[Stop]:
         """Returns departures from the respective Trias client."""
         geo = self.address_to_geo(address)
         yield from self.get_departures_geo(geo)
