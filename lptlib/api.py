@@ -27,9 +27,6 @@ def get_departures_addr(address: Union[Address, str]) -> Departures:
     except ValueError:
         raise Error('ZIP code is not an integer.') from None
 
-    if not CLIENTS:
-        load_clients()
-
     try:
         client = CLIENTS[zip_code]
     except KeyError:
@@ -42,7 +39,7 @@ def get_departures_geo(geo: GeoCoordinates) -> Departures:
     """Returns departures by geo coordinates."""
 
     try:
-        client = CLIENTS['18055']   # http://v3.api.efa.de/
+        client = CLIENTS[18055]     # http://v3.api.efa.de/
     except KeyError:
         raise Error('General API not found.', status=404) from None
 
@@ -54,6 +51,9 @@ def get_departures(target: Target) -> Departures:
 
     if target is None:
         raise Error('No target specified.')
+
+    if not CLIENTS:
+        load_clients()
 
     if isinstance(target, (Address, str)):
         return get_departures_addr(target)
