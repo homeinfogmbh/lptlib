@@ -67,7 +67,7 @@ class Stop(NamedTuple):
         return {
             'id': self.id,
             'name': self.name,
-            'geo': [*self.geo],
+            'geo': [self.geo.latitude, self.geo.longitude],
             'departures': [dep.to_json() for dep in self.departures]
         }
 
