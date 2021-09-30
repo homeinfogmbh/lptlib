@@ -5,7 +5,7 @@ from typing import Union
 from mdb import Address
 from wsgilib import Error, ACCEPT, XML, JSON
 
-from lptlib.client import CLIENTS, load_clients
+from lptlib.client import get_client_by_name, get_client_by_zip_code
 from lptlib.datastructures import Departures, GeoCoordinates
 from lptlib.functions import is_geo_coordinates
 from lptlib.dom import stops as stops_dom   # pylint: disable=E0401,E0611
@@ -28,7 +28,7 @@ def get_departures_addr(address: Union[Address, str]) -> Departures:
         raise Error('ZIP code is not an integer.') from None
 
     try:
-        client = CLIENTS[zip_code]
+        client = get_client_by_zip_code(zip_code)
     except KeyError:
         raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
@@ -39,7 +39,7 @@ def get_departures_geo(geo: GeoCoordinates) -> Departures:
     """Returns departures by geo coordinates."""
 
     try:
-        client = CLIENTS[18055]     # http://v3.api.efa.de/
+        client = get_client_by_name('EFA Detuschland')
     except KeyError:
         raise Error('General API not found.', status=404) from None
 
@@ -51,9 +51,6 @@ def get_departures(target: Target) -> Departures:
 
     if target is None:
         raise Error('No target specified.')
-
-    if not CLIENTS:
-        load_clients()
 
     if isinstance(target, (Address, str)):
         return get_departures_addr(target)
