@@ -1,23 +1,23 @@
 """Generalized local public transportation API."""
 
-from typing import Iterator, Union
+from typing import Union
 
 from mdb import Address
 from wsgilib import Error, ACCEPT, XML, JSON
 
 from lptlib.client import CLIENTS, load_clients
-from lptlib.datastructures import Stop
+from lptlib.datastructures import Departures, GeoCoordinates
 from lptlib.dom import stops as stops_dom   # pylint: disable=E0401,E0611
 
 
 __all__ = ['get_departures', 'get_response']
 
 
-def get_departures(address: Address) -> tuple[Iterator[Stop], str]:
-    """Returns a list of departures."""
+Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
 
-    if address is None:
-        raise Error('No address specified.')
+
+def get_departures_addr(address: Union[Address, str]) -> Departures:
+    """Returns departures by address."""
 
     try:
         zip_code = int(address.zip_code)
@@ -34,13 +34,39 @@ def get_departures(address: Address) -> tuple[Iterator[Stop], str]:
     except KeyError:
         raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
-    return (client.get_departures_addr(address), client.source)
+    return (list(client.get_departures_addr(address)), client.source)
 
 
-def get_response(address: Address) -> Union[JSON, XML]:
+def get_departures_geo(geo: GeoCoordinates) -> Departures:
+    """Returns departures by geo coordinates."""
+
+    try:
+        client = CLIENTS[18055]     # http://v3.api.efa.de/
+    except KeyError:
+        raise Error('General API not found.', status=404) from None
+
+    return (list(client.get_departures_geo(geo)), client.source)
+
+
+def get_departures(target: Target) -> Departures:
+    """Returns a list of departures."""
+
+    if target is None:
+        raise Error('No target specified.')
+
+    if isinstance(target, (Address, str)):
+        return get_departures_addr(target)
+
+    if isinstance(target, GeoCoordinates):
+        return get_departures_geo(target)
+
+    raise TypeError('Cannot retrieve departures info for type:', type(target))
+
+
+def get_response(target: Target) -> Union[JSON, XML]:
     """Returns the respective departures."""
 
-    stops, source = get_departures(address)
+    stops, source = get_departures(target)
 
     if 'application/json' in ACCEPT:
         json = {

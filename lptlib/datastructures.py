@@ -7,7 +7,7 @@ from lptlib.dom import Stop as StopDOM  # pylint: disable=E0401,E0611
 from lptlib.dom import StopEvent as StopEventDOM  # pylint: disable=E0401,E0611
 
 
-__all__ = ['GeoCoordinates', 'StopEvent', 'Stop']
+__all__ = ['GeoCoordinates', 'StopEvent', 'Stop', 'Departures']
 
 
 class GeoCoordinates(NamedTuple):
@@ -81,3 +81,10 @@ class Stop(NamedTuple):
         stop.longitude = self.geo.longitude
         stop.departure = [departure.to_dom() for departure in self.departures]
         return stop
+
+
+class Departures(NamedTuple):
+    """Contains departures info."""
+
+    departures: list[Stop]
+    source: str
