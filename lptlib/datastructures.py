@@ -1,7 +1,7 @@
 """Common API."""
 
 from datetime import datetime
-from typing import Iterable, NamedTuple
+from typing import Iterable, NamedTuple, Optional
 
 from lptlib.dom import Stop as StopDOM  # pylint: disable=E0401,E0611
 from lptlib.dom import StopEvent as StopEventDOM  # pylint: disable=E0401,E0611
@@ -17,21 +17,24 @@ class StopEvent(NamedTuple):
     line: str
     destination: str
     scheduled: datetime
-    estimated: datetime
+    estimated: Optional[datetime] = None
+
+    @property
+    def estimated_str(self) -> Optional[str]:
+        """Returns the estimated datetime string."""
+        if self.estimated is None:
+            return None
+
+        return self.estimated.isoformat()
 
     def to_json(self) -> dict:
         """Returns a JSON-ish dict."""
-        if self.estimated is None:
-            estimated = None
-        else:
-            estimated = self.estimated.isoformat()
-
         return {
             'type': self.type,
             'line': self.line,
             'destination': self.destination,
             'scheduled': self.scheduled.isoformat(),
-            'estimated': estimated
+            'estimated': self.estimated_str
         }
 
     def to_dom(self) -> StopEventDOM:
