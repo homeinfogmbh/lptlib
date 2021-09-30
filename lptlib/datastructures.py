@@ -7,7 +7,14 @@ from lptlib.dom import Stop as StopDOM  # pylint: disable=E0401,E0611
 from lptlib.dom import StopEvent as StopEventDOM  # pylint: disable=E0401,E0611
 
 
-__all__ = ['StopEvent', 'Stop']
+__all__ = ['GeoCoordinates', 'StopEvent', 'Stop']
+
+
+class GeoCoordinates(NamedTuple):
+    """Geo coordinates."""
+
+    latitude: float
+    longitude: float
 
 
 class StopEvent(NamedTuple):
@@ -53,8 +60,7 @@ class Stop(NamedTuple):
 
     id: str
     name: str
-    latitude: float
-    longitude: float
+    geo: GeoCoordinates
     departures: Iterable[StopEvent]
 
     def to_json(self) -> dict:
@@ -62,8 +68,7 @@ class Stop(NamedTuple):
         return {
             'id': self.id,
             'name': self.name,
-            'latitude': self.latitude,
-            'longitude': self.longitude,
+            'geo': [*self.geo],
             'departures': [dep.to_json() for dep in self.departures]
         }
 
@@ -72,7 +77,7 @@ class Stop(NamedTuple):
         stop = StopDOM()
         stop.id = self.id
         stop.name = self.name
-        stop.latitude = self.latitude
-        stop.longitude = self.longitude
+        stop.latitude = self.geo.latitude
+        stop.longitude = self.geo.longitude
         stop.departure = [departure.to_dom() for departure in self.departures]
         return stop

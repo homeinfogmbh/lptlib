@@ -1,15 +1,21 @@
 """Translates HAFAS API responses."""
 
 from datetime import datetime
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Union
 
-from hafas.client import Departure, StopLocation
+from hafas import Departure, StopLocation
+from mdb import Address
 
+from lptlib.clientwrapper import ClientWrapper
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
-from lptlib.datastructures import Stop, StopEvent
+from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
 
 
-__all__ = ['get_departures']
+__all__ = ['ClientWrapper']
+
+
+class NoCoordLocationFound(Exception):
+    """Indicates that no CoordLocation has been found."""
 
 
 def _make_stop(stop_location: StopLocation,
@@ -18,9 +24,8 @@ def _make_stop(stop_location: StopLocation,
 
     ident = str(stop_location.id)
     name = str(stop_location.name)
-    latitude = float(stop_location.lat)
-    longitude = float(stop_location.lon)
-    return Stop(ident, name, latitude, longitude, departures)
+    geo = GeoCoordinates(float(stop_location.lat), float(stop_location.lon))
+    return Stop(ident, name, geo, departures)
 
 
 def _make_stop_event(departure: Departure) -> StopEvent:
@@ -50,26 +55,43 @@ def _stop_events(departures: Iterable[Departure]) -> Iterator[StopEvent]:
         yield _make_stop_event(departure)
 
 
-def get_departures(client, address: str) -> Iterator[Stop]:
-    """Returns departures from the respective HAFAS client."""
+class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
+    """Wraps a HAFAS client."""
 
-    addresses = client.locations(str(address), type='A')
+    def get_departures_geo(self, geo: tuple[float, float]) -> Iterator[Stop]:
+        """Yields stops for the given geo coordinates."""
+        nearby_stops = self.client.nearbystops(geo.latitude, geo.longitude)
 
-    try:
-        coord_location = addresses.CoordLocation[0]
-    except IndexError:
-        return
+        for stops, stop_location in enumerate(nearby_stops.StopLocation, start=1):
+            if stops >= MAX_STOPS:
+                break
 
-    nearby_stops = client.nearbystops(coord_location.lat, coord_location.lon)
+            departure_board = self.client.departure_board(stop_location.id)
 
-    for stops, stop_location in enumerate(nearby_stops.StopLocation, start=1):
-        if stops >= MAX_STOPS:
-            break
+            if not departure_board.Departure:  # Skip stations without stop events.
+                continue
 
-        departure_board = client.departure_board(stop_location.id)
+            departures = list(_stop_events(departure_board.Departure))
+            yield _make_stop(stop_location, departures)
 
-        if not departure_board.Departure:  # Skip stations without stop events.
-            continue
+    def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
+        """Converts an address into geo coordinates."""
+        addresses = self.client.locations(str(address), type='A')
 
-        departures = list(_stop_events(departure_board.Departure))
-        yield _make_stop(stop_location, departures)
+        try:
+            coord_location = addresses.CoordLocation[0]
+        except IndexError:
+            raise NoCoordLocationFound() from None
+
+        return GeoCoordinates(coord_location.lat, coord_location.lon)
+
+
+    def get_departures_addr(self, address: Union[Address, str]) \
+            -> Iterator[Stop]:
+        """Returns departures from the respective HAFAS client."""
+        try:
+            geo_coordinates = self.address_to_geo(address)
+        except NoCoordLocationFound:
+            return
+
+        yield from self.get_departures_geo(geo_coordinates)

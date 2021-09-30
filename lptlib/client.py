@@ -4,22 +4,43 @@ from __future__ import annotations
 from json import load
 from logging import getLogger
 from pathlib import Path
-from typing import Iterator, Union
 
 from hafas import Client as HafasClient
 from trias import Client as TriasClient
 
-from lptlib.datastructures import Stop
-from lptlib.hafas import get_departures as get_departures_hafas
-from lptlib.trias import get_departures as get_departures_trias
+from lptlib.clientwrapper import ClientWrapper
+from lptlib.hafas import ClientWrapper as HafasClientWrapper
+from lptlib.trias import ClientWrapper as TriasClientWrapper
 
 
-__all__ = ['CLIENTS', 'load_clients', 'Client']
+__all__ = ['CLIENTS', 'load_clients']
 
 
 CLIENTS_CONFIG = Path('/usr/local/etc/lpt.json')
 CLIENTS = {}
 LOGGER = getLogger('LPT')
+
+
+def load_client(config: dict) -> ClientWrapper:
+    """Creates an instance from the respective config entry."""
+
+    type_ = config['type'].strip().casefold()
+    url = config['url']
+
+    if type_ == 'trias':
+        client = TriasClient(
+            config.get('version', '1.1'), url, config['requestor_ref'],
+            validate=config.get('validate', True),
+            debug=config.get('debug', False))
+        wrapper = TriasClientWrapper
+    elif type_ == 'hafas':
+        client = HafasClient(url, config['access_id'])
+        wrapper = HafasClientWrapper
+    else:
+        raise ValueError(f'Invalid client type: {type_}.')
+
+    return wrapper(client, config['source'],
+                   fix_address=config.get('fix_address', False))
 
 
 def load_clients(path: Path = CLIENTS_CONFIG):
@@ -28,7 +49,7 @@ def load_clients(path: Path = CLIENTS_CONFIG):
     CLIENTS.clear()
 
     try:
-        with path.open('r') as file:
+        with path.open('rb') as file:
             json = load(file)
     except FileNotFoundError:
         LOGGER.error('Config file "%s" not found.', path)
@@ -38,7 +59,7 @@ def load_clients(path: Path = CLIENTS_CONFIG):
         LOGGER.info('Loading %s.', name)
 
         try:
-            client = Client.from_config(config)
+            client = load_client(config)
         except KeyError as key_error:
             LOGGER.error('No %s specified.', key_error)
             continue
@@ -49,41 +70,3 @@ def load_clients(path: Path = CLIENTS_CONFIG):
         for (start, end) in config.get('zip_codes'):
             for zip_code in range(start, end+1):
                 CLIENTS[zip_code] = client
-
-
-class Client:   # pylint: disable=R0903
-    """A generic local public transport API client."""
-
-    def __init__(self, client: Union[HafasClient, TriasClient], source: str,
-                 fix_address: bool = False):
-        """Sets client and source."""
-        self.client = client
-        self.source = source
-        self.fix_address = fix_address
-
-    def get_departures(self, address: str) -> Iterator[Stop]:
-        """Returns the respective departures."""
-        if isinstance(self.client, HafasClient):
-            return get_departures_hafas(self.client, address)
-
-        return get_departures_trias(
-            self.client, address, fix_address=self.fix_address)
-
-    @classmethod
-    def from_config(cls, config: dict) -> Client:
-        """Creates an instance from the respective config entry."""
-        type_ = config['type'].strip().casefold()
-        url = config['url']
-
-        if type_ == 'trias':
-            client = TriasClient(
-                config.get('version', '1.1'), url, config['requestor_ref'],
-                validate=config.get('validate', True),
-                debug=config.get('debug', False))
-        elif type_ == 'hafas':
-            client = HafasClient(url, config['access_id'])
-        else:
-            raise ValueError(f'Invalid client type: {type_}.')
-
-        return cls(client, config['source'],
-                   fix_address=config.get('fix_address', False))

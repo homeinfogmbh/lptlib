@@ -34,7 +34,7 @@ def get_departures(address: Address) -> tuple[Iterator[Stop], str]:
     except KeyError:
         raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
-    return (client.get_departures(address), client.source)
+    return (client.get_departures_addr(address), client.source)
 
 
 def get_response(address: Address) -> Union[JSON, XML]:

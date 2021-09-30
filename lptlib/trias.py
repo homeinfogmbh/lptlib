@@ -1,15 +1,17 @@
 """Translates TRIAS API responses."""
 
 from datetime import datetime
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Union
 
-from trias.typing import LocationResultStructure, StopEventResultStructure
+from mdb import Address
+from trias import LocationResultStructure, StopEventResultStructure
 
+from lptlib.clientwrapper import ClientWrapper
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
-from lptlib.datastructures import Stop, StopEvent
+from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
 
 
-__all__ = ['get_departures']
+__all__ = ['ClientWrapper']
 
 
 STRING_REPLACEMENTS = {
@@ -45,9 +47,9 @@ def _make_stop(location: LocationResultStructure,
 
     ident = str(location.Location.StopPoint.StopPointRef.value())
     name = str(location.Location.StopPoint.StopPointName.Text)
-    longitude = float(location.Location.GeoPosition.Longitude)
-    latitude = float(location.Location.GeoPosition.Latitude)
-    return Stop(ident, name, latitude, longitude, departures)
+    geo = GeoCoordinates(float(location.Location.GeoPosition.Longitude),
+                         float(location.Location.GeoPosition.Latitude))
+    return Stop(ident, name, geo, departures)
 
 
 def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
@@ -95,27 +97,36 @@ def _stop_events(stop_event_results: Iterable[StopEventResultStructure]) \
         yield _make_stop_event(stop_event_result)
 
 
-def get_departures(client, address: str, fix_address: bool = False) \
-        -> Iterator[Stop]:
-    """Returns departures from the respective Trias client."""
+class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
+    """Wraps a TRIAS client."""
 
-    address = str(address)
-
-    if fix_address:
-        address = _fix_address(address)
-
-    geo_coordinates = client.geocoordinates(address)
-    trias = client.stops(geo_coordinates)
-    payload = trias.ServiceDelivery.DeliveryPayload
-    locations = payload.LocationInformationResponse.Location
-
-    for stops, location in enumerate(locations, start=1):
-        if stops > MAX_STOPS:
-            break
-
-        stop_point_ref = location.Location.StopPoint.StopPointRef.value()
-        trias = client.stop_event(stop_point_ref)
+    def get_departures_geo(self, geo: GeoCoordinates) -> Iterator[Stop]:
+        """Yields stops for the given geo coordinates."""
+        trias = self.client.stops(geo)
         payload = trias.ServiceDelivery.DeliveryPayload
-        stop_event_results = payload.StopEventResponse.StopEventResult
-        departures = list(_stop_events(stop_event_results))
-        yield _make_stop(location, departures)
+        locations = payload.LocationInformationResponse.Location
+
+        for stops, location in enumerate(locations, start=1):
+            if stops > MAX_STOPS:
+                break
+
+            stop_point_ref = location.Location.StopPoint.StopPointRef.value()
+            trias = self.client.stop_event(stop_point_ref)
+            payload = trias.ServiceDelivery.DeliveryPayload
+            stop_event_results = payload.StopEventResponse.StopEventResult
+            departures = list(_stop_events(stop_event_results))
+            yield _make_stop(location, departures)
+
+    def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
+        """Returns departures from the respective Trias client."""
+        address = str(address)
+
+        if self.fix_address:
+            address = _fix_address(address)
+
+        return self.client.geocoordinates(address)
+
+    def get_departures(self, address: Union[Address, str]) -> Iterator[Stop]:
+        """Returns departures from the respective Trias client."""
+        geo = self.address_to_geo(address)
+        yield from self.get_departures_geo(geo)
