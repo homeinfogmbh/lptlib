@@ -115,8 +115,8 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
             trias = self.client.stop_event(stop_point_ref)
             payload = trias.ServiceDelivery.DeliveryPayload
             stop_event_results = payload.StopEventResponse.StopEventResult
-            departures = _stop_events(stop_event_results, departures=departures)
-            yield _make_stop(location, list(departures))
+            deps = _stop_events(stop_event_results, departures=departures)
+            yield _make_stop(location, list(deps))
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
         """Converts an address into geo coordinates."""
