@@ -77,19 +77,21 @@ def load_clients(json: dict) -> dict[str, ClientWrapper]:
 
 
 @cache
-def load_map(json: dict) -> dict[int, ClientWrapper]:
-    """Loads ZIP code / client map."""
+def load_map(json: dict) -> dict[int, str]:
+    """Loads ZIP code / name map."""
 
-    clients = load_clients(json)
     map_ = {}
 
     for name, zip_codes in json.get('map', {}).items():
         LOGGER.info('Mapping %s.', name)
 
-        for (start, end) in zip_codes:
+        for start, end in zip_codes:
             for zip_code in range(start, end + 1):
+                if zip_code in map_:
+                    LOGGER.warning('Duplicate zip code: %s', zip_code)
+
                 try:
-                    map_[zip_code] = clients[name]
+                    map_[zip_code] = name
                 except KeyError:
                     LOGGER.error('No such client: %s', name)
 
@@ -105,4 +107,4 @@ def get_client_by_name(name: str) -> ClientWrapper:
 def get_client_by_zip_code(zip_code: int) -> ClientWrapper:
     """Returns a client for the given ZIP code."""
 
-    return load_map(load_json())[zip_code]
+    return get_client_by_name(load_map(load_json())[zip_code])
