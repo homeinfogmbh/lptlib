@@ -98,6 +98,6 @@ class Stops(NamedTuple):
     def to_dom(self) -> dom.Stops:
         """Returns an XML DOM."""
         stops = dom.Stops()
-        stops.stop = [stop.to_som() for stop in self.stops]
+        stops.stop = [stop.to_dom() for stop in self.stops]
         stops.source = self.source
         return stops
