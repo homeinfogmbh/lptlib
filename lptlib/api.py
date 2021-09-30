@@ -7,6 +7,7 @@ from wsgilib import Error, ACCEPT, XML, JSON
 
 from lptlib.client import CLIENTS, load_clients
 from lptlib.datastructures import Departures, GeoCoordinates
+from lptlib.functions import is_geo_coordinates
 from lptlib.dom import stops as stops_dom   # pylint: disable=E0401,E0611
 
 
@@ -57,7 +58,7 @@ def get_departures(target: Target) -> Departures:
     if isinstance(target, (Address, str)):
         return get_departures_addr(target)
 
-    if isinstance(target, GeoCoordinates):
+    if isinstance(target, GeoCoordinates) or is_geo_coordinates(target):
         return get_departures_geo(target)
 
     raise TypeError('Cannot retrieve departures info for type:', type(target))
