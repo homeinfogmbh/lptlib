@@ -86,12 +86,12 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
     return StopEvent(type_, line, destination, scheduled, estimated)
 
 
-def _stop_events(stop_event_results: Iterable[StopEventResultStructure]) \
-        -> Iterator[StopEvent]:
+def _stop_events(stop_event_results: Iterable[StopEventResultStructure], *,
+                 departures: int = MAX_DEPARTURES) -> Iterator[StopEvent]:
     """Yields stop events."""
 
     for depc, stop_event_result in enumerate(stop_event_results, start=1):
-        if depc > MAX_DEPARTURES:
+        if depc > departures:
             break
 
         yield _make_stop_event(stop_event_result)
@@ -100,25 +100,26 @@ def _stop_events(stop_event_results: Iterable[StopEventResultStructure]) \
 class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
     """Wraps a TRIAS client."""
 
-    def get_departures_geo(self, geo: GeoCoordinates) -> Iterator[Stop]:
-        """Yields stops for the given geo coordinates."""
+    def get_departures_geo(self, geo: GeoCoordinates, *, stops: int = MAX_STOPS,
+                           departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+        """Yields departures for the given geo coordinates."""
         trias = self.client.stops(geo)
         payload = trias.ServiceDelivery.DeliveryPayload
         locations = payload.LocationInformationResponse.Location
 
-        for stops, location in enumerate(locations, start=1):
-            if stops > MAX_STOPS:
+        for stop, location in enumerate(locations, start=1):
+            if stop > stops:
                 break
 
             stop_point_ref = location.Location.StopPoint.StopPointRef.value()
             trias = self.client.stop_event(stop_point_ref)
             payload = trias.ServiceDelivery.DeliveryPayload
             stop_event_results = payload.StopEventResponse.StopEventResult
-            departures = list(_stop_events(stop_event_results))
-            yield _make_stop(location, departures)
+            departures = _stop_events(stop_event_results, departures=departures)
+            yield _make_stop(location, list(departures))
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
-        """Returns departures from the respective Trias client."""
+        """Converts an address into geo coordinates."""
         address = str(address)
 
         if self.fix_address:
@@ -126,8 +127,9 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
 
         return self.client.geocoordinates(address)
 
-    def get_departures_addr(self, address: Union[Address, str]) \
-            -> Iterator[Stop]:
-        """Returns departures from the respective Trias client."""
-        geo = self.address_to_geo(address)
-        yield from self.get_departures_geo(geo)
+    def get_departures_addr(self, address: Union[Address, str], *,
+                           stops: int = MAX_STOPS,
+                           departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+        """Yields departures for the given address."""
+        yield from self.get_departures_geo(
+            self.address_to_geo(address), stops=stops, departures=departures)

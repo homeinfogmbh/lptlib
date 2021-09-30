@@ -7,6 +7,7 @@ from hafas import Client as HafasClient
 from mdb import Address
 from trias import Client as TriasClient
 
+from lptlib.config import MAX_STOPS, MAX_DEPARTURES
 from lptlib.datastructures import GeoCoordinates, Stop
 
 
@@ -26,11 +27,13 @@ class ClientWrapper:   # pylint: disable=R0903
         self.source = source
         self.fix_address = fix_address
 
-    def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
-        """Returns departures from the respective Trias client."""
+    def get_departures_geo(self, geo: GeoCoordinates, *, stops: int = MAX_STOPS,
+                           departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+        """Yields stops for the given geo coordinates."""
         raise NotImplementedError()
 
-    def get_departures_addr(self, address: Union[Address, str]) \
-            -> Iterator[Stop]:
-        """Returns departures from the respective Trias client."""
+    def get_departures_addr(self, address: Union[Address, str], *,
+                            stops: int = MAX_STOPS,
+                            departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+        """Yields departures for the given address."""
         raise NotImplementedError()
