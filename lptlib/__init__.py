@@ -2,6 +2,12 @@
 
 from lptlib.api import get_departures, get_response
 from lptlib.datastructures import GeoCoordinates
+from lptlib.exceptions import NoGeoCoordinatesForAddress
 
 
-__all__ = ['get_departures', 'get_response', 'GeoCoordinates']
+__all__ = [
+    'NoGeoCoordinatesForAddress',
+    'get_departures',
+    'get_response',
+    'GeoCoordinates'
+]
