@@ -27,13 +27,16 @@ class ClientWrapper:   # pylint: disable=R0903
         self.source = source
         self.fix_address = fix_address
 
-    def get_departures_geo(self, geo: GeoCoordinates, *, stops: int = MAX_STOPS,
-                           departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+    def get_departures_geo(self, geo: GeoCoordinates, *,
+                           stops: int = MAX_STOPS,
+                           departures: int = MAX_DEPARTURES
+                           ) -> Iterator[Stop]:
         """Yields stops for the given geo coordinates."""
         raise NotImplementedError()
 
     def get_departures_addr(self, address: Union[Address, str], *,
                             stops: int = MAX_STOPS,
-                            departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+                            departures: int = MAX_DEPARTURES
+                            ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         raise NotImplementedError()

@@ -43,7 +43,8 @@ def _make_stop_event(departure: Departure) -> StopEvent:
 
 
 def _stop_events(departures: Iterable[Departure], *,
-                 limit: int = MAX_DEPARTURES) -> Iterator[StopEvent]:
+                 limit: int = MAX_DEPARTURES
+                 ) -> Iterator[StopEvent]:
     """Yields stop events of a Departure node."""
 
     for depc, departure in enumerate(departures, start=1):
@@ -56,18 +57,22 @@ def _stop_events(departures: Iterable[Departure], *,
 class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
     """Wraps a HAFAS client."""
 
-    def get_departures_geo(self, geo: GeoCoordinates, *, stops: int = MAX_STOPS,
-                           departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+    def get_departures_geo(self, geo: GeoCoordinates, *,
+                           stops: int = MAX_STOPS,
+                           departures: int = MAX_DEPARTURES
+                           ) -> Iterator[Stop]:
         """Yields stops for the given geo coordinates."""
         nearby_stops = self.client.nearbystops(geo.latitude, geo.longitude)
+        stop_locations = nearby_stops.StopLocation
 
-        for stop, stop_location in enumerate(nearby_stops.StopLocation, start=1):
+        for stop, stop_location in enumerate(stop_locations, start=1):
             if stop >= stops:
                 break
 
             departure_board = self.client.departure_board(stop_location.id)
 
-            if not departure_board.Departure:  # Skip stations without stop events.
+            # Skip stations without stop events.
+            if not departure_board.Departure:
                 continue
 
             deps = _stop_events(departure_board.Departure, limit=departures)
@@ -84,10 +89,10 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
 
         return GeoCoordinates(coord_location.lat, coord_location.lon)
 
-
     def get_departures_addr(self, address: Union[Address, str], *,
                             stops: int = MAX_STOPS,
-                            departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
+                            departures: int = MAX_DEPARTURES
+                            ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         yield from self.get_departures_geo(
             self.address_to_geo(address), stops=stops, departures=departures)
