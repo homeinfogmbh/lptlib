@@ -9,6 +9,7 @@ from trias import LocationResultStructure, StopEventResultStructure
 from lptlib.clientwrapper import ClientWrapper
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
 from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
+from lptlib.exceptions import NoGeoCoordinatesForAddress
 
 
 __all__ = ['ClientWrapper']
@@ -125,7 +126,10 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
         if self.fix_address:
             address = _fix_address(address)
 
-        return self.client.geocoordinates(address)
+        if (geocoordinates := self.client.geocoordinates(address)) is None:
+            raise NoGeoCoordinatesForAddress(address)
+
+        return geocoordinates
 
     def get_departures_addr(self, address: Union[Address, str], *,
                            stops: int = MAX_STOPS,

@@ -9,13 +9,10 @@ from mdb import Address
 from lptlib.clientwrapper import ClientWrapper
 from lptlib.config import MAX_STOPS, MAX_DEPARTURES
 from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
+from lptlib.exceptions import NoGeoCoordinatesForAddress
 
 
 __all__ = ['ClientWrapper']
-
-
-class NoCoordLocationFound(Exception):
-    """Indicates that no CoordLocation has been found."""
 
 
 def _make_stop(stop_location: StopLocation,
@@ -78,12 +75,12 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
         """Converts an address into geo coordinates."""
-        addresses = self.client.locations(str(address), type='A')
+        addresses = self.client.locations((address := str(address)), type='A')
 
         try:
             coord_location = addresses.CoordLocation[0]
         except IndexError:
-            raise NoCoordLocationFound() from None
+            raise NoGeoCoordinatesForAddress(address) from None
 
         return GeoCoordinates(coord_location.lat, coord_location.lon)
 
@@ -92,10 +89,5 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
                             stops: int = MAX_STOPS,
                             departures: int = MAX_DEPARTURES) -> Iterator[Stop]:
         """Yields departures for the given address."""
-        try:
-            geo_coordinates = self.address_to_geo(address)
-        except NoCoordLocationFound:
-            return
-
         yield from self.get_departures_geo(
-            geo_coordinates, stops=stops, departures=departures)
+            self.address_to_geo(address), stops=stops, departures=departures)
