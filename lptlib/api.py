@@ -1,6 +1,6 @@
 """Generalized local public transportation API."""
 
-from typing import Union
+from typing import Optional, Union
 
 from mdb import Address
 from wsgilib import Error, ACCEPT, XML, JSON
@@ -16,7 +16,9 @@ __all__ = ['get_departures', 'get_response']
 Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
 
 
-def get_departures_addr(address: Union[Address, str]) -> Stops:
+def get_departures_addr(address: Union[Address, str],
+                        stops: Optional[int] = None,
+                        departures: Optional[int] = None) -> Stops:
     """Returns departures by address."""
 
     try:
@@ -31,10 +33,12 @@ def get_departures_addr(address: Union[Address, str]) -> Stops:
     except KeyError:
         raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
-    return Stops(list(client.get_departures_addr(address)), client.source)
+    return Stops(list(client.get_departures_addr(
+        address, stops=stops, departures=departures)), client.source)
 
 
-def get_departures_geo(geo: GeoCoordinates) -> Stops:
+def get_departures_geo(geo: GeoCoordinates, stops: Optional[int] = None,
+                       departures: Optional[int] = None) -> Stops:
     """Returns departures by geo coordinates."""
 
     try:
@@ -42,28 +46,31 @@ def get_departures_geo(geo: GeoCoordinates) -> Stops:
     except KeyError:
         raise Error('General API not found.', status=404) from None
 
-    return Stops(list(client.get_departures_geo(geo)), client.source)
+    return Stops(list(client.get_departures_geo(
+        geo, stops=stops, departures=departures)), client.source)
 
 
-def get_departures(target: Target) -> Stops:
+def get_departures(target: Target, stops: Optional[int] = None,
+                   departures: Optional[int] = None) -> Stops:
     """Returns a list of departures."""
 
     if target is None:
         raise Error('No target specified.')
 
     if isinstance(target, (Address, str)):
-        return get_departures_addr(target)
+        return get_departures_addr(target, stops=stops, departures=departures)
 
     if isinstance(target, GeoCoordinates) or is_geo_coordinates(target):
-        return get_departures_geo(target)
+        return get_departures_geo(target, stops=stops, departures=departures)
 
     raise TypeError('Cannot retrieve departures info for type:', type(target))
 
 
-def get_response(target: Target) -> Union[JSON, XML]:
+def get_response(target: Target, stops: Optional[int] = None,
+                 departures: Optional[int] = None) -> Union[JSON, XML]:
     """Returns the respective departures."""
 
-    stops = get_departures(target)
+    stops = get_departures(target, stops=stops, departures=departures)
 
     if 'application/json' in ACCEPT:
         return JSON(stops.to_json())

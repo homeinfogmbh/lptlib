@@ -1,11 +1,23 @@
 """Configuration file parsing."""
 
-from configlib import loadcfg
+from functools import cache, partial
+
+from configlib import load_config
 
 
-__all__ = ['CONFIG', 'MAX_STOPS', 'MAX_DEPARTURES']
+__all__ = ['get_config', 'get_max_stops', 'get_max_departures']
 
 
-CONFIG = loadcfg('lpt.conf')
-MAX_STOPS = CONFIG.getint('LPT', 'stops', fallback=3)
-MAX_DEPARTURES = CONFIG.getint('LPT', 'departures', fallback=3)
+get_config = partial(cache(load_config), 'lptlib.conf')
+
+
+def get_max_stops() -> int:
+    """Returns the maximum amount of displayed stops."""
+
+    return get_config().getint('LPT', 'stops', fallback=3)
+
+
+def get_max_departures() -> int:
+    """Returns the maximum amount of displayed departures per stop."""
+
+    return get_config().getint('LPT', 'departures', fallback=3)

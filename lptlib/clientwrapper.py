@@ -1,13 +1,12 @@
 """Common client wrapper."""
 
 from __future__ import annotations
-from typing import Iterator, Union
+from typing import Iterator, Optional, Union
 
 from hafas import Client as HafasClient
 from mdb import Address
 from trias import Client as TriasClient
 
-from lptlib.config import MAX_STOPS, MAX_DEPARTURES
 from lptlib.datastructures import GeoCoordinates, Stop
 
 
@@ -28,15 +27,15 @@ class ClientWrapper:   # pylint: disable=R0903
         self.fix_address = fix_address
 
     def get_departures_geo(self, geo: GeoCoordinates, *,
-                           stops: int = MAX_STOPS,
-                           departures: int = MAX_DEPARTURES
+                           stops: Optional[int] = None,
+                           departures: Optional[int] = None
                            ) -> Iterator[Stop]:
         """Yields stops for the given geo coordinates."""
         raise NotImplementedError()
 
     def get_departures_addr(self, address: Union[Address, str], *,
-                            stops: int = MAX_STOPS,
-                            departures: int = MAX_DEPARTURES
+                            stops: Optional[int] = None,
+                            departures: Optional[int] = None
                             ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         raise NotImplementedError()

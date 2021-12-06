@@ -1,13 +1,12 @@
 """Translates TRIAS API responses."""
 
 from datetime import datetime
-from typing import Iterable, Iterator, Union
+from typing import Iterable, Iterator, Optional, Union
 
 from mdb import Address
 from trias import LocationResultStructure, StopEventResultStructure
 
 from lptlib.clientwrapper import ClientWrapper
-from lptlib.config import MAX_STOPS, MAX_DEPARTURES
 from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
 from lptlib.exceptions import NoGeoCoordinatesForAddress
 
@@ -88,11 +87,11 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
 
 
 def _stop_events(stop_event_results: Iterable[StopEventResultStructure], *,
-                 departures: int = MAX_DEPARTURES) -> Iterator[StopEvent]:
+                 departures: Optional[int] = None) -> Iterator[StopEvent]:
     """Yields stop events."""
 
     for depc, stop_event_result in enumerate(stop_event_results, start=1):
-        if depc > departures:
+        if departures is not None and depc > departures:
             break
 
         yield _make_stop_event(stop_event_result)
@@ -102,8 +101,8 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
     """Wraps a TRIAS client."""
 
     def get_departures_geo(self, geo: GeoCoordinates, *,
-                           stops: int = MAX_STOPS,
-                           departures: int = MAX_DEPARTURES
+                           stops: Optional[int] = None,
+                           departures: Optional[int] = None
                            ) -> Iterator[Stop]:
         """Yields departures for the given geo coordinates."""
         trias = self.client.stops(geo)
@@ -111,7 +110,7 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
         locations = payload.LocationInformationResponse.Location
 
         for stop, location in enumerate(locations, start=1):
-            if stop > stops:
+            if stops is not None and stop > stops:
                 break
 
             stop_point_ref = location.Location.StopPoint.StopPointRef.value()
@@ -134,8 +133,8 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
         return geocoordinates
 
     def get_departures_addr(self, address: Union[Address, str], *,
-                            stops: int = MAX_STOPS,
-                            departures: int = MAX_DEPARTURES
+                            stops: Optional[int] = None,
+                            departures: Optional[int] = None
                             ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         yield from self.get_departures_geo(
