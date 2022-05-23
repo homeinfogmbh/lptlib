@@ -1,5 +1,6 @@
 """Generalized local public transportation API."""
 
+from logging import getLogger
 from typing import Optional, Union
 
 from mdb import Address
@@ -13,6 +14,7 @@ from lptlib.functions import is_geo_coordinates
 __all__ = ['get_departures', 'get_response']
 
 
+LOGGER = getLogger('lptlib')
 Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
 
 
@@ -33,6 +35,8 @@ def get_departures_addr(address: Union[Address, str],
     except KeyError:
         raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
 
+    LOGGER.info('Using client: %s', client)
+
     return Stops(list(client.get_departures_addr(
         address, stops=stops, departures=departures)), client.source)
 
@@ -45,6 +49,8 @@ def get_departures_geo(geo: GeoCoordinates, stops: Optional[int] = None,
         client = get_client_by_name('EFA Deutschland')
     except KeyError:
         raise Error('General API not found.', status=404) from None
+
+    LOGGER.info('Using client: %s', client)
 
     return Stops(list(client.get_departures_geo(
         geo, stops=stops, departures=departures)), client.source)
