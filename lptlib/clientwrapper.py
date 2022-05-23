@@ -26,6 +26,9 @@ class ClientWrapper:   # pylint: disable=R0903
         self.source = source
         self.fix_address = fix_address
 
+    def __str__(self):
+        return f'{self.client} {self.source} {self.fix_address}'
+
     def get_departures_geo(self, geo: GeoCoordinates, *,
                            stops: Optional[int] = None,
                            departures: Optional[int] = None
