@@ -40,8 +40,10 @@ def load_client(config: dict) -> ClientWrapper:
     else:
         raise ValueError(f'Invalid client type: {type_}.')
 
-    return wrapper(client, config['source'],
-                   fix_address=config.get('fix_address', False))
+    return wrapper(
+        client, config['source'],
+        fix_address=config.get('fix_address', False)
+    )
 
 
 @cache
