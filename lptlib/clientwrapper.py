@@ -16,7 +16,7 @@ __all__ = ['ClientWrapper']
 Client = Union[HafasClient, TriasClient]
 
 
-class ClientWrapper:   # pylint: disable=R0903
+class ClientWrapper:
     """A generic local public transport API client."""
 
     def __init__(

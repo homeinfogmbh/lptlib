@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Iterable, NamedTuple, Optional
 
-from lptlib import dom  # pylint: disable=E0611
+from lptlib import dom
 
 
 __all__ = ['GeoCoordinates', 'StopEvent', 'Stop', 'Stops']

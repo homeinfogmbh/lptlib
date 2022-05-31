@@ -31,7 +31,8 @@ def load_client(config: dict) -> ClientWrapper:
         client = TriasClient(
             config.get('version', '1.1'), url, config['requestor_ref'],
             validate=config.get('validate', True),
-            debug=config.get('debug', False))
+            debug=config.get('debug', False)
+        )
         wrapper = TriasClientWrapper
     elif type_ == 'hafas':
         client = HafasClient(url, config['access_id'])

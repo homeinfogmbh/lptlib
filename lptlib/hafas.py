@@ -56,7 +56,7 @@ def _stop_events(
         yield _make_stop_event(departure)
 
 
-class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
+class ClientWrapper(ClientWrapper):
     """Wraps a HAFAS client."""
 
     def get_departures_geo(
