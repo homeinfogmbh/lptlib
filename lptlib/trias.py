@@ -34,8 +34,10 @@ def _fix_address(address: str) -> str:
     return address
 
 
-def _make_stop(location: LocationResultStructure,
-               departures: list[StopEvent]) -> Stop:
+def _make_stop(
+        location: LocationResultStructure,
+        departures: list[StopEvent]
+) -> Stop:
     """Creates a stop from the respective
     Trias
         → ServiceDelivery
@@ -47,8 +49,10 @@ def _make_stop(location: LocationResultStructure,
 
     ident = str(location.Location.StopPoint.StopPointRef.value())
     name = str(location.Location.StopPoint.StopPointName.Text)
-    geo = GeoCoordinates(float(location.Location.GeoPosition.Longitude),
-                         float(location.Location.GeoPosition.Latitude))
+    geo = GeoCoordinates(
+        float(location.Location.GeoPosition.Longitude),
+        float(location.Location.GeoPosition.Latitude)
+    )
     return Stop(ident, name, geo, departures)
 
 
@@ -86,8 +90,11 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
     return StopEvent(type_, line, destination, scheduled, estimated)
 
 
-def _stop_events(stop_event_results: Iterable[StopEventResultStructure], *,
-                 departures: Optional[int] = None) -> Iterator[StopEvent]:
+def _stop_events(
+        stop_event_results: Iterable[StopEventResultStructure],
+        *,
+        departures: Optional[int] = None
+) -> Iterator[StopEvent]:
     """Yields stop events."""
 
     for depc, stop_event_result in enumerate(stop_event_results, start=1):
@@ -100,10 +107,13 @@ def _stop_events(stop_event_results: Iterable[StopEventResultStructure], *,
 class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
     """Wraps a TRIAS client."""
 
-    def get_departures_geo(self, geo: GeoCoordinates, *,
-                           stops: Optional[int] = None,
-                           departures: Optional[int] = None
-                           ) -> Iterator[Stop]:
+    def get_departures_geo(
+            self,
+            geo: GeoCoordinates,
+            *,
+            stops: Optional[int] = None,
+            departures: Optional[int] = None
+    ) -> Iterator[Stop]:
         """Yields departures for the given geo coordinates."""
         trias = self.client.stops(geo)
         payload = trias.ServiceDelivery.DeliveryPayload
@@ -132,10 +142,13 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
 
         return geocoordinates
 
-    def get_departures_addr(self, address: Union[Address, str], *,
-                            stops: Optional[int] = None,
-                            departures: Optional[int] = None
-                            ) -> Iterator[Stop]:
+    def get_departures_addr(
+            self,
+            address: Union[Address, str],
+            *,
+            stops: Optional[int] = None,
+            departures: Optional[int] = None
+    ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         yield from self.get_departures_geo(
             self.address_to_geo(address), stops=stops, departures=departures)

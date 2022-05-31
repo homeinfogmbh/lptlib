@@ -14,8 +14,10 @@ from lptlib.exceptions import NoGeoCoordinatesForAddress
 __all__ = ['ClientWrapper']
 
 
-def _make_stop(stop_location: StopLocation,
-               departures: list[StopEvent]) -> Stop:
+def _make_stop(
+        stop_location: StopLocation,
+        departures: list[StopEvent]
+) -> Stop:
     """Creates a stop from the respective HAFAS CoordLocation element."""
 
     ident = str(stop_location.id)
@@ -41,9 +43,11 @@ def _make_stop_event(departure: Departure) -> StopEvent:
     return StopEvent(type_, line, destination, scheduled, estimated)
 
 
-def _stop_events(departures: Iterable[Departure], *,
-                 limit: Optional[int] = None
-                 ) -> Iterator[StopEvent]:
+def _stop_events(
+        departures: Iterable[Departure],
+        *,
+        limit: Optional[int] = None
+) -> Iterator[StopEvent]:
     """Yields stop events of a Departure node."""
     for depc, departure in enumerate(departures, start=1):
         if limit is not None and depc > limit:
@@ -55,10 +59,13 @@ def _stop_events(departures: Iterable[Departure], *,
 class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
     """Wraps a HAFAS client."""
 
-    def get_departures_geo(self, geo: GeoCoordinates, *,
-                           stops: Optional[int] = None,
-                           departures: Optional[int] = None
-                           ) -> Iterator[Stop]:
+    def get_departures_geo(
+            self,
+            geo: GeoCoordinates,
+            *,
+            stops: Optional[int] = None,
+            departures: Optional[int] = None
+    ) -> Iterator[Stop]:
         """Yields stops for the given geo coordinates."""
         nearby_stops = self.client.nearbystops(geo.latitude, geo.longitude)
         stop_locations = nearby_stops.StopLocation
@@ -87,10 +94,13 @@ class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
 
         return GeoCoordinates(coord_location.lat, coord_location.lon)
 
-    def get_departures_addr(self, address: Union[Address, str], *,
-                            stops: Optional[int] = None,
-                            departures: Optional[int] = None
-                            ) -> Iterator[Stop]:
+    def get_departures_addr(
+            self,
+            address: Union[Address, str],
+            *,
+            stops: Optional[int] = None,
+            departures: Optional[int] = None
+    ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         yield from self.get_departures_geo(
             self.address_to_geo(address), stops=stops, departures=departures)

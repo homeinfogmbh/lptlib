@@ -18,9 +18,11 @@ LOGGER = getLogger('lptlib')
 Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
 
 
-def get_departures_addr(address: Union[Address, str],
-                        stops: Optional[int] = None,
-                        departures: Optional[int] = None) -> Stops:
+def get_departures_addr(
+        address: Union[Address, str],
+        stops: Optional[int] = None,
+        departures: Optional[int] = None
+) -> Stops:
     """Returns departures by address."""
 
     try:
@@ -41,8 +43,11 @@ def get_departures_addr(address: Union[Address, str],
         address, stops=stops, departures=departures)), client.source)
 
 
-def get_departures_geo(geo: GeoCoordinates, stops: Optional[int] = None,
-                       departures: Optional[int] = None) -> Stops:
+def get_departures_geo(
+        geo: GeoCoordinates,
+        stops: Optional[int] = None,
+        departures: Optional[int] = None
+) -> Stops:
     """Returns departures by geo coordinates."""
 
     try:
@@ -56,8 +61,11 @@ def get_departures_geo(geo: GeoCoordinates, stops: Optional[int] = None,
         geo, stops=stops, departures=departures)), client.source)
 
 
-def get_departures(target: Target, stops: Optional[int] = None,
-                   departures: Optional[int] = None) -> Stops:
+def get_departures(
+        target: Target,
+        stops: Optional[int] = None,
+        departures: Optional[int] = None
+) -> Stops:
     """Returns a list of departures."""
 
     if target is None:
@@ -72,8 +80,11 @@ def get_departures(target: Target, stops: Optional[int] = None,
     raise TypeError('Cannot retrieve departures info for type:', type(target))
 
 
-def get_response(target: Target, stops: Optional[int] = None,
-                 departures: Optional[int] = None) -> Union[JSON, XML]:
+def get_response(
+        target: Target,
+        stops: Optional[int] = None,
+        departures: Optional[int] = None
+) -> Union[JSON, XML]:
     """Returns the respective departures."""
 
     stops = get_departures(target, stops=stops, departures=departures)
