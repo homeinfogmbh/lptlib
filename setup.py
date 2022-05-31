@@ -11,11 +11,13 @@ setup(
     maintainer='Richard Neumann',
     maintainer_email='<r dot neumann at homeinfo priod de>',
     requires=[
+        'configlib',
         'functoolsplus',
         'flask',
-        'timelib',
+        'mdb',
         'trias',
         'hafas',
-        'wsgilib'],
+        'wsgilib'
+    ],
     packages=['lptlib'],
     description='General purpose local public transport API.')
