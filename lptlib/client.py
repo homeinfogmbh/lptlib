@@ -29,9 +29,12 @@ def load_client(config: dict) -> ClientWrapper:
 
     if type_ == 'trias':
         client = TriasClient(
-            config.get('version', '1.1'), url, config['requestor_ref'],
+            config.get('version', '1.1'),
+            url,
+            config['requestor_ref'],
             validate=config.get('validate', True),
-            debug=config.get('debug', False)
+            debug=config.get('debug', False),
+            user_agent=config.get('user_agent')
         )
         wrapper = TriasClientWrapper
     elif type_ == 'hafas':
