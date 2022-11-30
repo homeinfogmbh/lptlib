@@ -6,7 +6,7 @@ from typing import Iterable, Iterator, Optional, Union
 from mdb import Address
 from trias import LocationResultStructure, StopEventResultStructure
 
-from lptlib.clientwrapper import ClientWrapper
+from lptlib import clientwrapper
 from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
 from lptlib.exceptions import NoGeoCoordinatesForAddress
 
@@ -96,7 +96,7 @@ def _stop_events(
         yield _make_stop_event(stop_event_result)
 
 
-class ClientWrapper(ClientWrapper):     # pylint: disable=E0102
+class ClientWrapper(clientwrapper.ClientWrapper):
     """Wraps a TRIAS client."""
 
     def get_departures_geo(
