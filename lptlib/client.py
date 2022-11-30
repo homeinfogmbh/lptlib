@@ -14,7 +14,7 @@ from lptlib.hafas import ClientWrapper as HafasClientWrapper
 from lptlib.trias import ClientWrapper as TriasClientWrapper
 
 
-__all__ = ['get_client_by_name', 'get_client_by_zip_code']
+__all__ = ['get_client_by_name', 'get_client_by_zip_code', 'load_clients']
 
 
 CLIENTS_CONFIG = Path('/usr/local/etc/lpt.json')
