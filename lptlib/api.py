@@ -42,6 +42,10 @@ def get_departures_addr(
     try:
         client = get_client_by_zip_code(zip_code)
     except KeyError:
+        LOGGER.warning(
+            'No API for ZIP code "%s" - using fallback client.',
+            zip_code
+        )
         client = get_fallback_client()
 
     LOGGER.info('Using client: %s', client)
