@@ -8,6 +8,7 @@ from wsgilib import Error, ACCEPT, XML, JSON
 
 from lptlib.client import get_client_by_name, get_client_by_zip_code
 from lptlib.datastructures import GeoCoordinates, Stops
+from lptlib.clientwrapper import ClientWrapper
 from lptlib.functions import is_geo_coordinates
 
 
@@ -16,6 +17,12 @@ __all__ = ['get_departures', 'get_response']
 
 LOGGER = getLogger('lptlib')
 Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
+
+
+def get_fallback_client(name: str = 'EFA Deutschland') -> ClientWrapper:
+    """Return the fallback LPT client."""
+
+    return get_client_by_name(name)
 
 
 def get_departures_addr(
@@ -35,7 +42,7 @@ def get_departures_addr(
     try:
         client = get_client_by_zip_code(zip_code)
     except KeyError:
-        raise Error(f'No API for ZIP code "{zip_code}".', status=404) from None
+        client = get_fallback_client()
 
     LOGGER.info('Using client: %s', client)
 
@@ -51,7 +58,7 @@ def get_departures_geo(
     """Returns departures by geo coordinates."""
 
     try:
-        client = get_client_by_name('EFA Deutschland')
+        client = get_fallback_client()
     except KeyError:
         raise Error('General API not found.', status=404) from None
 
