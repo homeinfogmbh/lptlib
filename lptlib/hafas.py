@@ -6,7 +6,7 @@ from typing import Iterable, Iterator, Optional, Union
 from hafas import Departure, StopLocation
 from mdb import Address
 
-from lptlib.clientwrapper import ClientWrapper
+from lptlib import clientwrapper
 from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
 from lptlib.exceptions import NoGeoCoordinatesForAddress
 
@@ -56,7 +56,7 @@ def _stop_events(
         yield _make_stop_event(departure)
 
 
-class ClientWrapper(ClientWrapper):
+class ClientWrapper(clientwrapper.ClientWrapper):
     """Wraps a HAFAS client."""
 
     def get_departures_geo(
