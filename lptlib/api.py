@@ -15,11 +15,12 @@ from lptlib.functions import is_geo_coordinates
 __all__ = ['get_departures', 'get_response']
 
 
+FALLBACK_CLIENT = 'EFA Deutschland'
 LOGGER = getLogger('lptlib')
 Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
 
 
-def get_fallback_client(name: str = 'EFA Deutschland') -> ClientWrapper:
+def get_fallback_client(name: str = FALLBACK_CLIENT) -> ClientWrapper:
     """Return the fallback LPT client."""
 
     return get_client_by_name(name)
