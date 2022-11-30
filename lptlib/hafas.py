@@ -81,7 +81,7 @@ class ClientWrapper(clientwrapper.ClientWrapper):
                 continue
 
             deps = _stop_events(departure_board.Departure, limit=departures)
-            yield _make_stop(stop_location, deps)
+            yield _make_stop(stop_location, list(deps))
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
         """Converts an address into geo coordinates."""
