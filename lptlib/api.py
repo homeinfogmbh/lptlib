@@ -46,8 +46,14 @@ def get_departures_addr(
 
     LOGGER.info('Using client: %s', client)
 
-    return Stops(list(client.get_departures_addr(
-        address, stops=stops, departures=departures)), client.source)
+    return Stops(
+        list(
+            client.get_departures_addr(
+                address, stops=stops, departures=departures
+            )
+        ),
+        client.source
+    )
 
 
 def get_departures_geo(
@@ -64,8 +70,14 @@ def get_departures_geo(
 
     LOGGER.info('Using client: %s', client)
 
-    return Stops(list(client.get_departures_geo(
-        geo, stops=stops, departures=departures)), client.source)
+    return Stops(
+        list(
+            client.get_departures_geo(
+                geo, stops=stops, departures=departures
+            )
+        ),
+        client.source
+    )
 
 
 def get_departures(
