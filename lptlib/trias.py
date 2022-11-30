@@ -78,14 +78,6 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
         estimated = datetime.fromtimestamp(estimated.timestamp())
 
     destination = str(_service.DestinationText.Text)
-
-    try:
-        route = _service.RouteDescription.Text
-    except AttributeError:
-        route = None
-    else:
-        route = str(route)
-
     type_ = str(_service.Mode.Name.Text)
     return StopEvent(type_, line, destination, scheduled, estimated)
 
