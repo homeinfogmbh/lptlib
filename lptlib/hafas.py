@@ -103,4 +103,5 @@ class ClientWrapper(clientwrapper.ClientWrapper):
     ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         yield from self.get_departures_geo(
-            self.address_to_geo(address), stops=stops, departures=departures)
+            self.address_to_geo(address), stops=stops, departures=departures
+        )
