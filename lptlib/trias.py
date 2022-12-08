@@ -65,24 +65,28 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
     node from a stop event.response.
     """
 
-    if (
-            call_at_stop := stop_event_result.StopEvent.ThisCall.CallAtStop
-    ).ServiceDeparture.EstimatedTime is None:
-        estimated = None
-    else:
-        estimated = datetime.fromtimestamp(
-            call_at_stop.ServiceDeparture.EstimatedTime.timestamp()
-        )
-
     return StopEvent(
         str(stop_event_result.StopEvent.Service.Mode.Name.Text),
         str(stop_event_result.StopEvent.Service.PublishedLineName.Text),
         str(stop_event_result.StopEvent.Service.DestinationText.Text),
         datetime.fromtimestamp(
-            call_at_stop.ServiceDeparture.TimetabledTime.timestamp()
+            (
+                call_at_stop := stop_event_result.StopEvent.ThisCall.CallAtStop
+            ).ServiceDeparture.TimetabledTime.timestamp()
         ),
-        estimated
+        _get_estimated_arrival(call_at_stop.ServiceDeparture.EstimatedTime)
     )
+
+
+def _get_estimated_arrival(
+        estimated_time: Optional[datetime]
+) -> Optional[datetime]:
+    """Return the estimated arrival timestamp."""
+
+    if estimated_time is None:
+        return None
+
+    return datetime.fromtimestamp(estimated_time.timestamp())
 
 
 def _stop_events(
