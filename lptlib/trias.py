@@ -89,8 +89,6 @@ def _get_estimated_arrival(
 ) -> Optional[datetime]:
     """Return the estimated arrival timestamp."""
 
-    print('ESTIMATED_TIME:', estimated_time, type(estimated_time), flush=True)
-
     if estimated_time is None:
         return None
 
