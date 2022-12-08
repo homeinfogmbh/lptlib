@@ -120,20 +120,32 @@ class ClientWrapper(clientwrapper.ClientWrapper):
             departures: Optional[int] = None
     ) -> Iterator[Stop]:
         """Yields departures for the given geo coordinates."""
-        trias = self.client.stops(geo)
-        payload = trias.ServiceDelivery.DeliveryPayload
-        locations = payload.LocationInformationResponse.Location
 
-        for stop, location in enumerate(locations, start=1):
+        for stop, location in enumerate(
+                self.client.stops(geo)
+                        .ServiceDelivery
+                        .DeliveryPayload
+                        .LocationInformationResponse
+                        .Location,
+                start=1
+        ):
             if stops is not None and stop > stops:
                 break
 
-            stop_point_ref = location.Location.StopPoint.StopPointRef.value()
-            trias = self.client.stop_event(stop_point_ref)
-            payload = trias.ServiceDelivery.DeliveryPayload
-            stop_event_results = payload.StopEventResponse.StopEventResult
-            deps = _stop_events(stop_event_results, departures=departures)
-            yield _make_stop(location, list(deps))
+            yield _make_stop(
+                location,
+                list(
+                    _stop_events(
+                        self.client.stop_event(
+                            location.Location.StopPoint.StopPointRef.value()
+                        ).ServiceDelivery
+                            .DeliveryPayload
+                            .StopEventResponse
+                            .StopEventResult,
+                        departures=departures
+                    )
+                )
+            )
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
         """Converts an address into geo coordinates."""
