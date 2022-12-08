@@ -33,16 +33,26 @@ def _make_stop_event(departure: Departure) -> StopEvent:
 
     line = str(departure.Product.line)
     scheduled = datetime.fromisoformat(f'{departure.date}T{departure.time}')
-
-    if departure.rtTime is None:
-        estimated = None
-    else:
-        est_date = departure.rtDate or departure.date
-        estimated = datetime.fromisoformat(f'{est_date}T{departure.rtTime}')
-
     destination = str(departure.direction)
     type_ = str(departure.Product.catOutL)
-    return StopEvent(type_, line, destination, scheduled, estimated)
+    return StopEvent(
+        type_,
+        line,
+        destination,
+        scheduled,
+        _get_estimated_arrival(departure)
+    )
+
+
+def _get_estimated_arrival(departure) -> Optional[datetime]:
+    """Return the estimated arrival time."""
+
+    if departure.rtTime is None:
+        return None
+
+    return datetime.fromisoformat(
+        f'{departure.rtDate or departure.date}T{departure.rtTime}'
+    )
 
 
 def _stop_events(
