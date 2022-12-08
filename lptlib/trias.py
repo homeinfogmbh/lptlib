@@ -65,22 +65,24 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
     node from a stop event.response.
     """
 
-    _service = stop_event_result.StopEvent.Service
-    line = str(_service.PublishedLineName.Text)
-    _call_at_stop = stop_event_result.StopEvent.ThisCall.CallAtStop
-    scheduled = datetime.fromtimestamp(
-        _call_at_stop.ServiceDeparture.TimetabledTime.timestamp()
-    )
-
-    if _call_at_stop.ServiceDeparture.EstimatedTime is None:
+    if (
+            call_at_stop := stop_event_result.StopEvent.ThisCall.CallAtStop
+    ).ServiceDeparture.EstimatedTime is None:
         estimated = None
     else:
-        estimated = _call_at_stop.ServiceDeparture.EstimatedTime
-        estimated = datetime.fromtimestamp(estimated.timestamp())
+        estimated = datetime.fromtimestamp(
+            call_at_stop.ServiceDeparture.EstimatedTime.timestamp()
+        )
 
-    destination = str(_service.DestinationText.Text)
-    type_ = str(_service.Mode.Name.Text)
-    return StopEvent(type_, line, destination, scheduled, estimated)
+    return StopEvent(
+        str(stop_event_result.StopEvent.Service.Mode.Name.Text),
+        str(stop_event_result.StopEvent.Service.PublishedLineName.Text),
+        str(stop_event_result.StopEvent.Service.DestinationText.Text),
+        datetime.fromtimestamp(
+            call_at_stop.ServiceDeparture.TimetabledTime.timestamp()
+        ),
+        estimated
+    )
 
 
 def _stop_events(
