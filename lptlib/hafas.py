@@ -43,6 +43,8 @@ def _make_stop_event(departure: Departure) -> StopEvent:
 def _get_estimated_arrival(departure) -> Optional[datetime]:
     """Return the estimated arrival time."""
 
+    print('DEPARTURE:', departure, type(departure), flush=True)
+
     if departure.rtTime is None:
         return None
 
