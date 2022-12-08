@@ -47,13 +47,15 @@ def _make_stop(
     node from a location information response.
     """
 
-    ident = str(location.Location.StopPoint.StopPointRef.value())
-    name = str(location.Location.StopPoint.StopPointName.Text)
-    geo = GeoCoordinates(
-        float(location.Location.GeoPosition.Longitude),
-        float(location.Location.GeoPosition.Latitude)
+    return Stop(
+        str(location.Location.StopPoint.StopPointRef.value()),
+        str(location.Location.StopPoint.StopPointName.Text),
+        GeoCoordinates(
+            float(location.Location.GeoPosition.Longitude),
+            float(location.Location.GeoPosition.Latitude)
+        ),
+        departures
     )
-    return Stop(ident, name, geo, departures)
 
 
 def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
