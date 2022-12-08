@@ -75,10 +75,11 @@ class ClientWrapper(clientwrapper.ClientWrapper):
             departures: Optional[int] = None
     ) -> Iterator[Stop]:
         """Yields stops for the given geo coordinates."""
-        nearby_stops = self.client.nearbystops(geo.latitude, geo.longitude)
-        stop_locations = nearby_stops.StopLocation
-
-        for stop, stop_location in enumerate(stop_locations, start=1):
+        for stop, stop_location in enumerate(
+                self.client.nearbystops(geo.latitude, geo.longitude)
+                        .StopLocation,
+                start=1
+        ):
             if stops is not None and stop >= stops:
                 break
 
@@ -88,8 +89,10 @@ class ClientWrapper(clientwrapper.ClientWrapper):
             if not departure_board.Departure:
                 continue
 
-            deps = _stop_events(departure_board.Departure, limit=departures)
-            yield _make_stop(stop_location, list(deps))
+            yield _make_stop(
+                stop_location,
+                list(_stop_events(departure_board.Departure, limit=departures))
+            )
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
         """Converts an address into geo coordinates."""
