@@ -68,8 +68,9 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
     _service = stop_event_result.StopEvent.Service
     line = str(_service.PublishedLineName.Text)
     _call_at_stop = stop_event_result.StopEvent.ThisCall.CallAtStop
-    scheduled = _call_at_stop.ServiceDeparture.TimetabledTime
-    scheduled = datetime.fromtimestamp(scheduled.timestamp())
+    scheduled = datetime.fromtimestamp(
+        _call_at_stop.ServiceDeparture.TimetabledTime.timestamp()
+    )
 
     if _call_at_stop.ServiceDeparture.EstimatedTime is None:
         estimated = None
