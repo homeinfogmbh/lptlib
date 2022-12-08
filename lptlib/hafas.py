@@ -31,15 +31,11 @@ def _make_stop(
 def _make_stop_event(departure: Departure) -> StopEvent:
     """Creates a stop from the respective HAFAS Departure element."""
 
-    line = str(departure.Product.line)
-    scheduled = datetime.fromisoformat(f'{departure.date}T{departure.time}')
-    destination = str(departure.direction)
-    type_ = str(departure.Product.catOutL)
     return StopEvent(
-        type_,
-        line,
-        destination,
-        scheduled,
+        str(departure.Product.catOutL),
+        str(departure.Product.line),
+        str(departure.direction),
+        datetime.fromisoformat(f'{departure.date}T{departure.time}'),
         _get_estimated_arrival(departure)
     )
 
