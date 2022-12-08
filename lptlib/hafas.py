@@ -20,10 +20,12 @@ def _make_stop(
 ) -> Stop:
     """Creates a stop from the respective HAFAS CoordLocation element."""
 
-    ident = str(stop_location.id)
-    name = str(stop_location.name)
-    geo = GeoCoordinates(float(stop_location.lat), float(stop_location.lon))
-    return Stop(ident, name, geo, departures)
+    return Stop(
+        str(stop_location.id),
+        str(stop_location.name),
+        GeoCoordinates(float(stop_location.lat), float(stop_location.lon)),
+        departures
+    )
 
 
 def _make_stop_event(departure: Departure) -> StopEvent:
