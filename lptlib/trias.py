@@ -73,10 +73,14 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
         str(stop_event_result.StopEvent.Service.DestinationText.Text),
         datetime.fromtimestamp(
             (
-                call_at_stop := stop_event_result.StopEvent.ThisCall.CallAtStop
-            ).ServiceDeparture.TimetabledTime.timestamp()
+                service_departure := stop_event_result
+                    .StopEvent
+                    .ThisCall
+                    .CallAtStop
+                    .ServiceDeparture
+            ).TimetabledTime.timestamp()
         ),
-        _get_estimated_arrival(call_at_stop.ServiceDeparture.EstimatedTime)
+        _get_estimated_arrival(service_departure.EstimatedTime)
     )
 
 
