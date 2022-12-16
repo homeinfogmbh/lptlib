@@ -40,7 +40,7 @@ def _make_stop_events(departure: Departure) -> StopEvent:
         )
         for product_ in product:
             print(
-                'Creating stop with product', product, type(product),
+                'Creating stop with product', product_, type(product_),
                 flush=True
             )
             yield _make_stop_event(departure, product_)
