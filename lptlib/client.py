@@ -38,7 +38,11 @@ def load_client(config: dict) -> ClientWrapper:
         )
         wrapper = TriasClientWrapper
     elif type_ == 'hafas':
-        client = HafasClient(url, config['access_id'])
+        client = HafasClient(
+            config.get('version', '1.23'),
+            url,
+            config['access_id']
+        )
         wrapper = HafasClientWrapper
     else:
         raise ValueError(f'Invalid client type: {type_}.')
