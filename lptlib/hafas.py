@@ -34,9 +34,21 @@ def _make_stop_events(departure: Departure) -> StopEvent:
     """Creates a stop from the respective HAFAS Departure element."""
 
     if isinstance(product := departure.Product, PluralBinding):
+        print(
+            'Product', product, type(product), 'is a plural binding.',
+            flush=True
+        )
         for product_ in product:
+            print(
+                'Creating stop with product', product, type(product),
+                flush=True
+            )
             yield _make_stop_event(departure, product_)
     else:
+        print(
+            'Product', product, type(product), 'is not a plural binding.',
+            flush=True
+        )
         yield _make_stop_event(departure, product)
 
 
