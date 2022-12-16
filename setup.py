@@ -18,6 +18,7 @@ setup(
         'functoolsplus',
         'flask',
         'mdb',
+        'pyxb',
         'trias',
         'hafas',
         'wsgilib'
