@@ -3,9 +3,7 @@
 from datetime import datetime
 from typing import Iterable, Iterator, Optional, Union
 
-from pyxb.binding.content import _PluralBinding as PluralBinding
-
-from hafas import Departure, Product, StopLocation
+from hafas import Departure, Product, StopLocation, iter_products
 from mdb import Address
 
 from lptlib import clientwrapper
@@ -28,16 +26,6 @@ def _make_stop(
         GeoCoordinates(float(stop_location.lat), float(stop_location.lon)),
         departures
     )
-
-
-def _make_stop_events(departure: Departure) -> StopEvent:
-    """Creates a stop from the respective HAFAS Departure element."""
-
-    if isinstance(product := departure.Product, PluralBinding):
-        for product_ in product:
-            yield _make_stop_event(departure, product_)
-    else:
-        yield _make_stop_event(departure, product)
 
 
 def _make_stop_event(departure: Departure, product: Product) -> StopEvent:
@@ -73,7 +61,8 @@ def _stop_events(
         if limit is not None and depc > limit:
             break
 
-        yield from _make_stop_events(departure)
+        for product in iter_products(departure):
+            yield _make_stop_event(departure, product)
 
 
 class ClientWrapper(clientwrapper.ClientWrapper):
