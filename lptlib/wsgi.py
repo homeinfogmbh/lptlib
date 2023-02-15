@@ -19,7 +19,7 @@ APPLICATION = Application('lpt', cors=True)
 
 @APPLICATION.route('/', methods=['POST'], strict_slashes=False)
 def _get_departures() -> JSON:
-    """Returns the respective departures as a JSON object."""
+    """Return the respective departures as a JSON object."""
 
     return JSON(
         get_departures(
