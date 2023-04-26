@@ -17,6 +17,7 @@ setup(
         'configlib',
         'functoolsplus',
         'flask',
+        'hwdb',
         'mdb',
         'trias',
         'hafas',
