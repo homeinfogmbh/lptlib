@@ -6,7 +6,7 @@ from typing import Iterable, NamedTuple, Optional
 from lptlib import dom
 
 
-__all__ = ['GeoCoordinates', 'StopEvent', 'Stop', 'Stops']
+__all__ = ["GeoCoordinates", "StopEvent", "Stop", "Stops"]
 
 
 class GeoCoordinates(NamedTuple):
@@ -36,11 +36,11 @@ class StopEvent(NamedTuple):
     def to_json(self) -> dict:
         """Returns a JSON-ish dict."""
         return {
-            'type': self.type,
-            'line': self.line,
-            'destination': self.destination,
-            'scheduled': self.scheduled.isoformat(),
-            'estimated': self.estimated_str
+            "type": self.type,
+            "line": self.line,
+            "destination": self.destination,
+            "scheduled": self.scheduled.isoformat(),
+            "estimated": self.estimated_str,
         }
 
     def to_dom(self) -> dom.StopEvent:
@@ -65,10 +65,10 @@ class Stop(NamedTuple):
     def to_json(self) -> dict:
         """Returns a JSON-ish dict."""
         return {
-            'id': self.id,
-            'name': self.name,
-            'geo': [self.geo.latitude, self.geo.longitude],
-            'departures': [dep.to_json() for dep in self.departures]
+            "id": self.id,
+            "name": self.name,
+            "geo": [self.geo.latitude, self.geo.longitude],
+            "departures": [dep.to_json() for dep in self.departures],
         }
 
     def to_dom(self) -> dom.Stop:
@@ -90,10 +90,7 @@ class Stops(NamedTuple):
 
     def to_json(self) -> dict:
         """Returns a JSON-ish dict."""
-        return {
-            'stops': [stop.to_json() for stop in self.stops],
-            'source': self.source
-        }
+        return {"stops": [stop.to_json() for stop in self.stops], "source": self.source}
 
     def to_dom(self) -> dom.stops:
         """Returns an XML DOM."""

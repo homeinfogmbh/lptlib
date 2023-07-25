@@ -12,11 +12,11 @@ from lptlib.clientwrapper import ClientWrapper
 from lptlib.functions import is_geo_coordinates
 
 
-__all__ = ['get_departures', 'get_response']
+__all__ = ["get_departures", "get_response"]
 
 
-FALLBACK_CLIENT = 'EFA Deutschland'
-LOGGER = getLogger('lptlib')
+FALLBACK_CLIENT = "EFA Deutschland"
+LOGGER = getLogger("lptlib")
 Target = Union[Address, str, GeoCoordinates, tuple[float, float]]
 
 
@@ -27,73 +27,58 @@ def get_fallback_client(name: str = FALLBACK_CLIENT) -> ClientWrapper:
 
 
 def get_departures_addr(
-        address: Union[Address, str],
-        stops: Optional[int] = None,
-        departures: Optional[int] = None
+    address: Union[Address, str],
+    stops: Optional[int] = None,
+    departures: Optional[int] = None,
 ) -> Stops:
     """Returns departures by address."""
 
     try:
         zip_code = int(address.zip_code)
     except TypeError:
-        raise Error('Address has no ZIP code.') from None
+        raise Error("Address has no ZIP code.") from None
     except ValueError:
-        raise Error('ZIP code is not an integer.') from None
+        raise Error("ZIP code is not an integer.") from None
 
     try:
         client = get_client_by_zip_code(zip_code)
     except KeyError:
-        LOGGER.warning(
-            'No API for ZIP code "%s" - using fallback client.',
-            zip_code
-        )
+        LOGGER.warning('No API for ZIP code "%s" - using fallback client.', zip_code)
         client = get_fallback_client()
 
-    LOGGER.info('Using client: %s', client)
+    LOGGER.info("Using client: %s", client)
 
     return Stops(
-        list(
-            client.get_departures_addr(
-                address, stops=stops, departures=departures
-            )
-        ),
-        client.source
+        list(client.get_departures_addr(address, stops=stops, departures=departures)),
+        client.source,
     )
 
 
 def get_departures_geo(
-        geo: GeoCoordinates,
-        stops: Optional[int] = None,
-        departures: Optional[int] = None
+    geo: GeoCoordinates, stops: Optional[int] = None, departures: Optional[int] = None
 ) -> Stops:
     """Returns departures by geo coordinates."""
 
     try:
         client = get_fallback_client()
     except KeyError:
-        raise Error('General API not found.', status=404) from None
+        raise Error("General API not found.", status=404) from None
 
-    LOGGER.info('Using client: %s', client)
+    LOGGER.info("Using client: %s", client)
 
     return Stops(
-        list(
-            client.get_departures_geo(
-                geo, stops=stops, departures=departures
-            )
-        ),
-        client.source
+        list(client.get_departures_geo(geo, stops=stops, departures=departures)),
+        client.source,
     )
 
 
 def get_departures(
-        target: Target,
-        stops: Optional[int] = None,
-        departures: Optional[int] = None
+    target: Target, stops: Optional[int] = None, departures: Optional[int] = None
 ) -> Stops:
     """Returns a list of departures."""
 
     if target is None:
-        raise Error('No target specified.')
+        raise Error("No target specified.")
 
     if isinstance(target, (Address, str)):
         return get_departures_addr(target, stops=stops, departures=departures)
@@ -101,19 +86,17 @@ def get_departures(
     if isinstance(target, GeoCoordinates) or is_geo_coordinates(target):
         return get_departures_geo(target, stops=stops, departures=departures)
 
-    raise TypeError('Cannot retrieve departures info for type:', type(target))
+    raise TypeError("Cannot retrieve departures info for type:", type(target))
 
 
 def get_response(
-        target: Target,
-        stops: Optional[int] = None,
-        departures: Optional[int] = None
+    target: Target, stops: Optional[int] = None, departures: Optional[int] = None
 ) -> Union[JSON, XML]:
     """Returns the respective departures."""
 
     stops = get_departures(target, stops=stops, departures=departures)
 
-    if 'application/json' in ACCEPT:
+    if "application/json" in ACCEPT:
         return JSON(stops.to_json())
 
     return XML(stops.to_dom())

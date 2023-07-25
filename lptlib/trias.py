@@ -11,17 +11,17 @@ from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
 from lptlib.exceptions import NoGeoCoordinatesForAddress
 
 
-__all__ = ['ClientWrapper']
+__all__ = ["ClientWrapper"]
 
 
 STRING_REPLACEMENTS = {
-    'ß': 'ss',
-    'ä': 'ae',
-    'ö': 'oe',
-    'ü': 'ue',
-    'Ä': 'Ae',
-    'Ö': 'Oe',
-    'Ü': 'Ue'
+    "ß": "ss",
+    "ä": "ae",
+    "ö": "oe",
+    "ü": "ue",
+    "Ä": "Ae",
+    "Ö": "Oe",
+    "Ü": "Ue",
 }
 
 
@@ -34,10 +34,7 @@ def _fix_address(address: str) -> str:
     return address
 
 
-def _make_stop(
-        location: LocationResultStructure,
-        departures: list[StopEvent]
-) -> Stop:
+def _make_stop(location: LocationResultStructure, departures: list[StopEvent]) -> Stop:
     """Creates a stop from the respective
     Trias
         → ServiceDelivery
@@ -52,9 +49,9 @@ def _make_stop(
         str(location.Location.StopPoint.StopPointName.Text),
         GeoCoordinates(
             float(location.Location.GeoPosition.Longitude),
-            float(location.Location.GeoPosition.Latitude)
+            float(location.Location.GeoPosition.Latitude),
         ),
-        departures
+        departures,
     )
 
 
@@ -73,20 +70,14 @@ def _make_stop_event(stop_event_result: StopEventResultStructure) -> StopEvent:
         str(stop_event_result.StopEvent.Service.DestinationText.Text),
         datetime.fromtimestamp(
             (
-                service_departure := stop_event_result
-                    .StopEvent
-                    .ThisCall
-                    .CallAtStop
-                    .ServiceDeparture
+                service_departure := stop_event_result.StopEvent.ThisCall.CallAtStop.ServiceDeparture
             ).TimetabledTime.timestamp()
         ),
-        _get_estimated_arrival(service_departure.EstimatedTime)
+        _get_estimated_arrival(service_departure.EstimatedTime),
     )
 
 
-def _get_estimated_arrival(
-        estimated_time: Optional[datetime]
-) -> Optional[datetime]:
+def _get_estimated_arrival(estimated_time: Optional[datetime]) -> Optional[datetime]:
     """Return the estimated arrival timestamp."""
 
     if estimated_time is None:
@@ -96,9 +87,9 @@ def _get_estimated_arrival(
 
 
 def _stop_events(
-        stop_event_results: Iterable[StopEventResultStructure],
-        *,
-        departures: Optional[int] = None
+    stop_event_results: Iterable[StopEventResultStructure],
+    *,
+    departures: Optional[int] = None,
 ) -> Iterator[StopEvent]:
     """Yields stop events."""
 
@@ -113,21 +104,19 @@ class ClientWrapper(clientwrapper.ClientWrapper):
     """Wraps a TRIAS client."""
 
     def get_departures_geo(
-            self,
-            geo: GeoCoordinates,
-            *,
-            stops: Optional[int] = None,
-            departures: Optional[int] = None
+        self,
+        geo: GeoCoordinates,
+        *,
+        stops: Optional[int] = None,
+        departures: Optional[int] = None,
     ) -> Iterator[Stop]:
         """Yields departures for the given geo coordinates."""
 
         for stop, location in enumerate(
-                self.client.stops(geo)
-                        .ServiceDelivery
-                        .DeliveryPayload
-                        .LocationInformationResponse
-                        .Location,
-                start=1
+            self.client.stops(
+                geo
+            ).ServiceDelivery.DeliveryPayload.LocationInformationResponse.Location,
+            start=1,
         ):
             if stops is not None and stop > stops:
                 break
@@ -138,13 +127,10 @@ class ClientWrapper(clientwrapper.ClientWrapper):
                     _stop_events(
                         self.client.stop_event(
                             location.Location.StopPoint.StopPointRef.value()
-                        ).ServiceDelivery
-                            .DeliveryPayload
-                            .StopEventResponse
-                            .StopEventResult,
-                        departures=departures
+                        ).ServiceDelivery.DeliveryPayload.StopEventResponse.StopEventResult,
+                        departures=departures,
                     )
-                )
+                ),
             )
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
@@ -160,11 +146,11 @@ class ClientWrapper(clientwrapper.ClientWrapper):
         return geocoordinates
 
     def get_departures_addr(
-            self,
-            address: Union[Address, str],
-            *,
-            stops: Optional[int] = None,
-            departures: Optional[int] = None
+        self,
+        address: Union[Address, str],
+        *,
+        stops: Optional[int] = None,
+        departures: Optional[int] = None,
     ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         yield from self.get_departures_geo(

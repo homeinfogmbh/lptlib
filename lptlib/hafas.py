@@ -11,20 +11,17 @@ from lptlib.datastructures import GeoCoordinates, Stop, StopEvent
 from lptlib.exceptions import NoGeoCoordinatesForAddress
 
 
-__all__ = ['ClientWrapper']
+__all__ = ["ClientWrapper"]
 
 
-def _make_stop(
-        stop_location: StopLocation,
-        departures: list[StopEvent]
-) -> Stop:
+def _make_stop(stop_location: StopLocation, departures: list[StopEvent]) -> Stop:
     """Creates a stop from the respective HAFAS CoordLocation element."""
 
     return Stop(
         str(stop_location.id),
         str(stop_location.name),
         GeoCoordinates(float(stop_location.lat), float(stop_location.lon)),
-        departures
+        departures,
     )
 
 
@@ -35,8 +32,8 @@ def _make_stop_event(departure: Departure, product: Product) -> StopEvent:
         str(product.catOutL),
         str(product.line),
         str(departure.direction),
-        datetime.fromisoformat(f'{departure.date}T{departure.time}'),
-        _get_estimated_arrival(departure)
+        datetime.fromisoformat(f"{departure.date}T{departure.time}"),
+        _get_estimated_arrival(departure),
     )
 
 
@@ -47,14 +44,12 @@ def _get_estimated_arrival(departure: Departure) -> Optional[datetime]:
         return None
 
     return datetime.fromisoformat(
-        f'{departure.rtDate or departure.date}T{departure.rtTime}'
+        f"{departure.rtDate or departure.date}T{departure.rtTime}"
     )
 
 
 def _stop_events(
-        departures: Iterable[Departure],
-        *,
-        limit: Optional[int] = None
+    departures: Iterable[Departure], *, limit: Optional[int] = None
 ) -> Iterator[StopEvent]:
     """Yields stop events of a Departure node."""
     for depc, departure in enumerate(departures, start=1):
@@ -69,17 +64,15 @@ class ClientWrapper(clientwrapper.ClientWrapper):
     """Wraps a HAFAS client."""
 
     def get_departures_geo(
-            self,
-            geo: GeoCoordinates,
-            *,
-            stops: Optional[int] = None,
-            departures: Optional[int] = None
+        self,
+        geo: GeoCoordinates,
+        *,
+        stops: Optional[int] = None,
+        departures: Optional[int] = None,
     ) -> Iterator[Stop]:
         """Yields stops for the given geo coordinates."""
         for stop, stop_location in enumerate(
-                self.client.nearbystops(geo.latitude, geo.longitude)
-                        .StopLocation,
-                start=1
+            self.client.nearbystops(geo.latitude, geo.longitude).StopLocation, start=1
         ):
             if stops is not None and stop >= stops:
                 break
@@ -92,12 +85,12 @@ class ClientWrapper(clientwrapper.ClientWrapper):
 
             yield _make_stop(
                 stop_location,
-                list(_stop_events(departure_board.Departure, limit=departures))
+                list(_stop_events(departure_board.Departure, limit=departures)),
             )
 
     def address_to_geo(self, address: Union[Address, str]) -> GeoCoordinates:
         """Converts an address into geo coordinates."""
-        addresses = self.client.locations((address := str(address)), type='A')
+        addresses = self.client.locations((address := str(address)), type="A")
 
         try:
             coord_location = addresses.CoordLocation[0]
@@ -107,11 +100,11 @@ class ClientWrapper(clientwrapper.ClientWrapper):
         return GeoCoordinates(coord_location.lat, coord_location.lon)
 
     def get_departures_addr(
-            self,
-            address: Union[Address, str],
-            *,
-            stops: Optional[int] = None,
-            departures: Optional[int] = None
+        self,
+        address: Union[Address, str],
+        *,
+        stops: Optional[int] = None,
+        departures: Optional[int] = None,
     ) -> Iterator[Stop]:
         """Yields departures for the given address."""
         yield from self.get_departures_geo(

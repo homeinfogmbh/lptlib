@@ -1,6 +1,6 @@
 """Common exceptions."""
 
-__all__ = ['NoGeoCoordinatesForAddress']
+__all__ = ["NoGeoCoordinatesForAddress"]
 
 
 class NoGeoCoordinatesForAddress(Exception):

@@ -8,11 +8,11 @@ from lptlib.wsgi import APPLICATION
 
 
 __all__ = [
-    'APPLICATION',
-    'NoGeoCoordinatesForAddress',
-    'get_departures',
-    'get_max_departures',
-    'get_max_stops',
-    'get_response',
-    'GeoCoordinates'
+    "APPLICATION",
+    "NoGeoCoordinatesForAddress",
+    "get_departures",
+    "get_max_departures",
+    "get_max_stops",
+    "get_response",
+    "GeoCoordinates",
 ]
